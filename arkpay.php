@@ -65,6 +65,47 @@ register_deactivation_hook( __FILE__, 'deactivate_arkpay' );
 require plugin_dir_path( __FILE__ ) . 'includes/class-arkpay.php';
 
 /**
+ * Initialize Arkpay payment gateway.
+ */
+function arkpay_payment_init() {
+	if ( class_exists( 'WC_Payment_Gateway' ) ) {
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-gateway-arkpay.php';
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-cart-button.php';
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-checkout-button.php';
+
+		// Register API webhook
+		add_action( 'rest_api_init', 'register_api_webhook_route' );
+	}
+}
+add_action( 'plugins_loaded', 'arkpay_payment_init', 11 );
+
+/**
+* Add Arkpay payment gateway to the list of available WooCommerce payment gateways.
+*
+* @param array $gateways List of available payment gateways.
+* @return array Modified list of available payment gateways.
+*/
+function add_arkpay_payment_gateway_to_wc( $gateways ) {
+	$gateways[] = 'WC_Gateway_Arkpay';
+
+	return $gateways;
+}
+add_filter( 'woocommerce_payment_gateways', 'add_arkpay_payment_gateway_to_wc' );
+
+/**
+ * Register ArkPay API webhook route.
+ */
+function register_api_webhook_route() {
+	$payment_gateway = new WC_Gateway_Arkpay();
+	
+	// TODO - Fix register route notice
+	@register_rest_route( 'api/arkpay', '/webhook', array(
+		'methods'  => 'POST',
+		'callback' => array( $payment_gateway, 'handle_webhook' ),
+	) );
+}
+
+/**
  * Begins execution of the plugin.
  *
  * Since everything within the plugin is registered via hooks,

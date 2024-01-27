@@ -215,4 +215,10 @@ class Arkpay {
 		return $this->version;
 	}
 
+	private function load_arkpay_payment_gateway() {
+
+		require plugin_dir_path( __FILE__ ) . 'includes/class-wc-arkpay-gateway.php';
+
+	}
+
 }
