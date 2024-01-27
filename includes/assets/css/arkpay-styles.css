@@ -1,0 +1,19 @@
+a#arkpay-pay-button {
+  background: linear-gradient(85deg,#00ffd1,#0cd0ad 33.16%,#97ffec 43.25%,#1dad93 71.01%,#00ffd1);
+  border-color: rgba(182,182,206,.16);
+  color: #000;
+}
+
+a#arkpay-pay-button:hover {
+  background: linear-gradient(255deg,#00ffd1,#0cd0ad 33.16%,#97ffec 43.25%,#1dad93 71.01%,#00ffd1);
+}
+
+a#arkpay-pay-button.disabled {
+  pointer-events: none;
+  cursor: default;
+}
+
+a#arkpay-pay-button:focus {
+  border: unset;
+  outline: unset;
+}
