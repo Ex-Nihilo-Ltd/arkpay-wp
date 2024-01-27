@@ -1,11 +1,11 @@
 a#arkpay-pay-button {
-  background: linear-gradient(85deg,#00ffd1,#0cd0ad 33.16%,#97ffec 43.25%,#1dad93 71.01%,#00ffd1);
   border-color: rgba(182,182,206,.16);
   color: #000;
+  background: #97ffec;
 }
 
 a#arkpay-pay-button:hover {
-  background: linear-gradient(255deg,#00ffd1,#0cd0ad 33.16%,#97ffec 43.25%,#1dad93 71.01%,#00ffd1);
+  background: #0cd0ad;
 }
 
 a#arkpay-pay-button.disabled {
