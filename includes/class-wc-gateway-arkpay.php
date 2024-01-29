@@ -52,83 +52,83 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 	/**
 	 * Constructor for the gateway.
 	 */
-	public function __construct() {
-		// Setup general properties.
-		$this->setup_properties();
+  public function __construct() {
+    // Setup general properties.
+    $this->setup_properties();
 
-		// Load the settings.
-		$this->init_form_fields();
-		$this->init_settings();
+    // Load the settings.
+    $this->init_form_fields();
+    $this->init_settings();
 
-		// Get settings.
-		$this->title       	= $this->get_option( 'title' );
-		$this->description 	= $this->get_option( 'description' );
-		$this->testmode    	= $this->get_option( 'testmode' );
-		$this->api_key     	= $this->get_option( 'api_key' );
-		$this->secret_key  	= $this->get_option( 'secret_key' );
-		$this->button_text 	= $this->get_option( 'button_text' );
+    // Get settings.
+    $this->title       	= $this->get_option( 'title' );
+    $this->description 	= $this->get_option( 'description' );
+    $this->testmode    	= $this->get_option( 'testmode' );
+    $this->api_key     	= $this->get_option( 'api_key' );
+    $this->secret_key  	= $this->get_option( 'secret_key' );
+    $this->button_text 	= $this->get_option( 'button_text' );
 
-		// Actions.
-		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
-		add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
+    // Actions.
+    add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+    add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
+    add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
 
-		// Customer Emails.
-		add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
+    // Customer Emails.
+    add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
 
-		// Styles
-		wp_register_style( 'arkpay_styles', plugins_url( 'assets/css/arkpay-styles.css', __FILE__ ) );
-		wp_enqueue_style( 'arkpay_styles' );
+    // Styles
+    wp_register_style( 'arkpay_styles', plugins_url( 'assets/css/arkpay-styles.css', __FILE__ ) );
+    wp_enqueue_style( 'arkpay_styles' );
 
-		// JS
-		wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ) );
+    // JS
+    wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ) );
 
-		// Create database table
-		$this->create_arkpay_draft_order_table();
-	}
+    // Create database table
+    $this->create_arkpay_draft_order_table();
+  }
 
-	/**
-	 * Create ArkPay Draft Order and Cart Item Tables.
-	 *
-	 * This function is responsible for creating two database tables:
-	 * 1. 'arkpay_draft_order' for storing draft order information.
-	 * 2. 'arkpay_cart_items' for storing cart items associated with each draft order.
-	 *
-	 * @global wpdb $wpdb WordPress database access abstraction object.
-	 */
-	private function create_arkpay_draft_order_table() {
-		global $wpdb;
+  /**
+   * Create ArkPay Draft Order and Cart Item Tables.
+   *
+   * This function is responsible for creating two database tables:
+   * 1. 'arkpay_draft_order' for storing draft order information.
+   * 2. 'arkpay_cart_items' for storing cart items associated with each draft order.
+   *
+   * @global wpdb $wpdb WordPress database access abstraction object.
+   */
+  private function create_arkpay_draft_order_table() {
+    global $wpdb;
 
-		$table_order = $wpdb->prefix . 'arkpay_draft_order';
+    $table_order = $wpdb->prefix . 'arkpay_draft_order';
 
-		// Check if the draft order table already exists
-		if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_order'" ) != $table_order ) {
-			$charset_collate = $wpdb->get_charset_collate();
+    // Check if the draft order table already exists
+    if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_order'" ) != $table_order ) {
+      $charset_collate = $wpdb->get_charset_collate();
 
-			$sql_order = "CREATE TABLE $table_order (
-				transaction_id VARCHAR(255) NOT NULL,
-				transaction_status VARCHAR(50),
-				cart_items LONGTEXT,
-				order_id VARCHAR(255),
-				order_key VARCHAR(255),
-				PRIMARY KEY (transaction_id)
-			) $charset_collate;";
+      $sql_order = "CREATE TABLE $table_order (
+      	transaction_id VARCHAR(255) NOT NULL,
+      	transaction_status VARCHAR(50),
+      	cart_items LONGTEXT,
+      	order_id VARCHAR(255),
+      	order_key VARCHAR(255),
+      	PRIMARY KEY (transaction_id)
+      ) $charset_collate;";
 
-			require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-			dbDelta($sql_order);
-		}
-	}
+      require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+      dbDelta($sql_order);
+    }
+  }
 
 	/**
 	 * Setup general properties for the gateway.
 	 */
-	protected function setup_properties() {
+  protected function setup_properties() {
     $this->id                 = self::ID;
     $this->icon               = apply_filters( 'woocommerce_arkpay_icon', plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ) );
     $this->method_title       = __( 'Arkpay', 'arkpay' );
     $this->method_description = __( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay' );
     $this->has_fields         = false;
-	}
+  }
 
 	/**
 	 * Initialise Gateway Settings Form Fields.
