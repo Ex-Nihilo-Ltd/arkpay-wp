@@ -68,25 +68,23 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     $this->secret_key  	= $this->get_option( 'secret_key' );
     $this->button_text 	= $this->get_option( 'button_text' );
 
-	$this->webhook		= $this->get_option( 'webhook' );
+		// Actions.
+		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
+		add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
 
-	// Actions.
-	add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-	add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'thankyou_page' ) );
-	add_filter( 'woocommerce_payment_complete_order_status', array( $this, 'change_payment_complete_order_status' ), 10, 3 );
+		// Customer Emails.
+		add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
 
-	// Customer Emails.
-	add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
+		// Styles
+		wp_register_style( 'arkpay_styles', plugins_url( 'assets/css/arkpay-styles.css', __FILE__ ) );
+		wp_enqueue_style( 'arkpay_styles' );
 
-	// Styles
-	wp_register_style( 'arkpay_styles', plugins_url( 'assets/css/arkpay-styles.css', __FILE__ ) );
-	wp_enqueue_style( 'arkpay_styles' );
+		// JS
+		wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ) );
 
-	// JS
-	wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ) );
-
-	// Create database table
-	$this->create_arkpay_draft_order_table();
+		// Create database table
+		$this->create_arkpay_draft_order_table();
 	}
 
 	/**
@@ -111,6 +109,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 				transaction_id VARCHAR(255) NOT NULL,
 				transaction_status VARCHAR(50),
 				cart_items LONGTEXT,
+				order_id VARCHAR(255),
 				order_key VARCHAR(255),
 				PRIMARY KEY (transaction_id)
 			) $charset_collate;";
@@ -129,7 +128,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     $this->method_title       = __( 'Arkpay', 'arkpay' );
     $this->method_description = __( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay' );
     $this->has_fields         = false;
-		$this->webhook 						= __( home_url( '/wp-json/api/arkpay/webhook' ) );
 	}
 
 	/**
@@ -178,11 +176,11 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         'title'       			=> __( 'Checkout Page - Button', 'arkpay' ),
         'type'        			=> 'text',
       ),
-			'webhook' => array(
+			'webhook_url' => array(
         'title'       			=> __( 'Webhook URL: ', 'arkpay' ),
         'type'        			=> 'text',
 				'desc_tip' 					=> 'Copy this webhook URL to your ArkPay store settings.',
-				'default'  					=> $this->webhook,
+				'default'  					=> $this->get_webhook_url(),
         'custom_attributes' => array( 'readonly' => 'readonly' ),
       ),
     ) );
@@ -238,7 +236,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 				return false;
 			}
 		}
-
 		return parent::is_available();
 	}
 
@@ -484,6 +481,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 			'api_key' 		=> $this->api_key,
 			'secret_key' 	=> $this->secret_key,
 			'button_text' => $this->button_text,
+			'webhook_url' => $this->get_webhook_url(),
 		);
 	}
 
@@ -503,6 +501,20 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * Get webhook URL.
+	 */
+	public function get_webhook_url() {
+		return get_rest_url() . 'api/arkpay/webhook';
+	}
+
+	/**
+	 * Get API URL.
+	 */
+	public function get_api_url() {
+		return 'https://api-arkpay.exnihilo.dev/api/v1';
+	}
+
+	/**
 	 * Create an ArkPay transaction.
 	 *
 	 * @param array $order An associative array containing transaction details.
@@ -515,8 +527,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 		$http_method	= 'POST';
 		$api_key 			= $settings['api_key'];
 		$secret_key 	= $settings['secret_key'];
-		// $api_url 			= 'https://arkpay.com/api/v1';
-		$api_url 			= 'https://api-arkpay.exnihilo.dev/api/v1';
+		$api_url 			= $this->get_api_url();
 		$api_uri 			= '/api/v1/merchant/api/transactions';
 		$endpoint 		= '/merchant/api/transactions';
 
@@ -526,11 +537,10 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 			'currency' 							=> $order['currency'],
 			'description' 					=> $order['description'],
 			'handlePayment' 				=> false,
-			// 'returnUrl' 						=> $order['returnUrl'],
+			// 'returnUrl' 						=> get_site_url(),
 		);
 
 		$signature = $this->create_signature( $http_method, $api_uri, json_encode( $body ), $secret_key );
-		
 		$headers = array(
 			'Content-Type: ' . 'application/json',
 			'X-Api-Key: ' . $api_key,
@@ -550,17 +560,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 		}
 
 		curl_close( $ch );
-
 		return json_decode( $response );
-	}
-	
-	/**
-	 * ArkPay handle webhook.
-	 */
-	public function handle_webhook() {
-		// TODO - Fix register route notice
-		error_log( 'ArkPay payment webhook received @@@' );
-		return 'Success Webhook';
 	}
 
 	public function save_draft_order( $order_data ) {
@@ -571,6 +571,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 		$transaction_id 		= $order_data['transaction_id'];
 		$transaction_status = $order_data['transaction_status'];
 		$cart_items 				= $order_data['cart_items'];
+		$order_id 					= $order_data['order_id'];
 		$order_key 					= $order_data['order_key'];
 
 		$wpdb->insert(
@@ -579,6 +580,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 				'transaction_id' 			=> $transaction_id,
 				'transaction_status' 	=> $transaction_status,
 				'cart_items' 					=> $cart_items,
+				'order_id' 						=> $order_id,
 				'order_key' 					=> $order_key,
 			),
 			array( '%s', '%s', '%s' )

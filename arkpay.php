@@ -72,6 +72,7 @@ function arkpay_payment_init() {
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-gateway-arkpay.php';
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-cart-button.php';
 		require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-checkout-button.php';
+		require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-arkpay-thankyou-redirect.php';
 
 		// Register API webhook
 		add_action( 'rest_api_init', 'register_api_webhook_route' );
@@ -96,12 +97,11 @@ add_filter( 'woocommerce_payment_gateways', 'add_arkpay_payment_gateway_to_wc' )
  * Register ArkPay API webhook route.
  */
 function register_api_webhook_route() {
-	$payment_gateway = new WC_Gateway_Arkpay();
+	require_once 'includes/class-wc-arkpay-webhook-handler.php';
 	
-	// TODO - Fix register route notice
 	@register_rest_route( 'api/arkpay', '/webhook', array(
 		'methods'  => 'POST',
-		'callback' => array( $payment_gateway, 'handle_webhook' ),
+		'callback' => 'handle_arkpay_transaction_status_change_webhook',
 	) );
 }
 

@@ -3,7 +3,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
-
 add_action( 'woocommerce_proceed_to_checkout', 'add_arkpay_cart_pay_button' );
 /**
  * Adds a custom button to the cart page for ArkPay payment.
@@ -34,7 +33,6 @@ function add_arkpay_cart_pay_button() {
             url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
             data: cartData,
             success: function (response) {
-              console.log('Response data: ', response.data);
               $(e.target).addClass('disabled');
               window.open(
                 response.data,
@@ -78,7 +76,7 @@ function arkpay_save_draft_order() {
       'id'          => uniqid(),
 			'ammount'     => $cart_total,
 			'currency'    => $currency,
-			'description' => 'Description',
+			'description' => 'Description.',
     );
 
     $transaction = $arkpay_gateway->create_arkpay_transaction( $order_data );
@@ -94,15 +92,19 @@ function arkpay_save_draft_order() {
       }
   
       $draft_order_data = array(
-        'transaction_id' => $transaction->transaction->id,
-        'transaction_status' => $transaction->transaction->status,
-        'cart_items' => json_encode( $items ),
-        'order_key' => null,
+        'transaction_id'      => $transaction->transaction->id,
+        'transaction_status'  => $transaction->transaction->status,
+        'cart_items'          => json_encode( $items ),
+        'order_id'            => null,
+        'order_key'           => null,
       );
   
       $arkpay_gateway->save_draft_order( $draft_order_data );
   
       $redirect_url = $transaction->redirectUrl;
+
+      // Clear cart
+      WC()->cart->empty_cart();
   
       wp_send_json_success( $redirect_url );
     }
