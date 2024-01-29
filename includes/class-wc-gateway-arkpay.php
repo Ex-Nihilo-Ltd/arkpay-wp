@@ -61,12 +61,12 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 		$this->init_settings();
 
 		// Get settings.
-    $this->title       	= $this->get_option( 'title' );
-    $this->description 	= $this->get_option( 'description' );
-    $this->testmode    	= $this->get_option( 'testmode' );
-    $this->api_key     	= $this->get_option( 'api_key' );
-    $this->secret_key  	= $this->get_option( 'secret_key' );
-    $this->button_text 	= $this->get_option( 'button_text' );
+		$this->title       	= $this->get_option( 'title' );
+		$this->description 	= $this->get_option( 'description' );
+		$this->testmode    	= $this->get_option( 'testmode' );
+		$this->api_key     	= $this->get_option( 'api_key' );
+		$this->secret_key  	= $this->get_option( 'secret_key' );
+		$this->button_text 	= $this->get_option( 'button_text' );
 
 		// Actions.
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
