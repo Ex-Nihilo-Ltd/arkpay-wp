@@ -172,17 +172,17 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         'title'       			=> __( 'Secret Key', 'arkpay' ),
         'type'        			=> 'text',
       ),
-      'button_text' => array(
-        'title'       			=> __( 'Checkout Page - Button', 'arkpay' ),
-        'type'        			=> 'text',
-      ),
+			'button_text' => array(
+				'title'       			=> __( 'Checkout Page - Button', 'arkpay' ),
+				'type'        			=> 'text',
+			),
 			'webhook_url' => array(
-        'title'       			=> __( 'Webhook URL: ', 'arkpay' ),
-        'type'        			=> 'text',
+				'title'       			=> __( 'Webhook URL: ', 'arkpay' ),
+				'type'        			=> 'text',
 				'desc_tip' 					=> 'Copy this webhook URL to your ArkPay store settings.',
 				'default'  					=> $this->get_webhook_url(),
-        'custom_attributes' => array( 'readonly' => 'readonly' ),
-      ),
+				'custom_attributes' => array( 'readonly' => 'readonly' ),
+			),
     ) );
   }
 
@@ -537,7 +537,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 			'currency' 							=> $order['currency'],
 			'description' 					=> $order['description'],
 			'handlePayment' 				=> false,
-			// 'returnUrl' 						=> get_site_url(),
 		);
 
 		$signature = $this->create_signature( $http_method, $api_uri, json_encode( $body ), $secret_key );
@@ -586,5 +585,4 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 			array( '%s', '%s', '%s' )
 		);
 	}
-
 }

@@ -7,12 +7,12 @@ function handle_arkpay_transaction_status_change_webhook() {
   global $wpdb;
   $payment_gateway = new WC_Gateway_Arkpay();
   
-	$data 				= file_get_contents('php://input');
-	$headers 			= getallheaders();
-	$settings			= $payment_gateway->get_arkpay_settings();
-	$secret_key		= $settings['secret_key'];
-	$webhook_url	= $settings['webhook_url'];
-	$http_method	= 'POST';
+  $data 				= file_get_contents('php://input');
+  $headers 			= getallheaders();
+  $settings			= $payment_gateway->get_arkpay_settings();
+  $secret_key		= $settings['secret_key'];
+  $webhook_url	= $settings['webhook_url'];
+  $http_method	= 'POST';
 
   $signature = $payment_gateway->create_signature( $http_method, $webhook_url, $data, $secret_key );
 
