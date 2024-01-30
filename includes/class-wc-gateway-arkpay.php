@@ -436,14 +436,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             'expiration_date'    => sanitize_text_field( $_POST['expirationdate'] ),
             'cvc'                => sanitize_text_field( $_POST['securitycode'] ),
         );
-        // $holder_name        = sanitize_text_field( $_POST['name'] );
-        // $card_number        = sanitize_text_field( $_POST['cardnumber'] );
-        // $expiration_date    = sanitize_text_field( $_POST['expirationdate'] );
-        // $cvc                = sanitize_text_field( $_POST['securitycode'] );
         
         if ( $order->get_total() > 0 ) {
             
-            // TODO - ArkPay Pay Transaction API
             $data = array(
                 'id'            => strval( $order_data['id'] ),
                 'ammount'       => intval( $order_data['total'] ),
@@ -454,20 +449,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
             $transaction = $this->create_arkpay_transaction( $data );
 
-            error_log( "**************************" );
-            error_log( "**************************" );
-            error_log( "CREATED TRANSACTION: " . print_r( $transaction, true ) );
-            error_log( "**************************" );
-            error_log( "**************************" );
-
             if ( $transaction->transaction->id && $transaction->transaction->status === 'NOT_STARTED' && $transaction->transaction->merchantTransactionId == $order_data['id'] ) {
                 $pay_transaction_response = $this->pay_arkpay_transaction( $order_data, $credit_card, $transaction->transaction->id );
                 if ( $pay_transaction_response->status === 'PROCESSING' && 'We are proccessing your payment details. Please wait...' === $pay_transaction_response->message ) {
-                    error_log( "**************************" );
-                    error_log( "**************************" );
-                    error_log( 'PAY TRANSACTION RESPONSE: ' . print_r( $pay_transaction_response, true ) );
-                    error_log( "**************************" );
-                    error_log( "**************************" );
 
                     if ( ! $pay_transaction_response ) {
                         $error_message = 'ArkPay Payment Error.';
@@ -690,7 +674,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         );
 
         $signature = $this->create_signature( $http_method, $api_uri, json_encode( $body, JSON_UNESCAPED_SLASHES ), $secret_key );
-        error_log( 'signature: ' . print_r( $signature, true ) );
         $headers = array(
             'Content-Type: ' . 'application/json',
             'X-Api-Key: ' . $api_key,
