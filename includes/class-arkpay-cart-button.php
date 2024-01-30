@@ -1,7 +1,7 @@
 <?php
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+  exit; // Exit if accessed directly.
 }
 add_action( 'woocommerce_proceed_to_checkout', 'add_arkpay_cart_pay_button' );
 /**
@@ -74,9 +74,9 @@ function arkpay_save_draft_order() {
     // Create draft order for transaction
     $order_data = array(
       'id'          => uniqid(),
-			'ammount'     => $cart_total,
-			'currency'    => $currency,
-			'description' => 'Description.',
+      'ammount'     => $cart_total,
+      'currency'    => $currency,
+      'description' => 'Description.',
     );
 
     $transaction = $arkpay_gateway->create_arkpay_transaction( $order_data );
@@ -86,17 +86,17 @@ function arkpay_save_draft_order() {
       $cart_items = WC()->cart->get_cart();
       $items = array();
       foreach ( $cart_items as $cart_item_key => $cart_item ) {
-        $items[$cart_item_key]['product_id'] = $cart_item['product_id'];
-        $items[$cart_item_key]['variation_id'] = $cart_item['variation_id'];
-        $items[$cart_item_key]['quantity'] = $cart_item['quantity'];
+        $items[$cart_item_key]['product_id']    = $cart_item['product_id'];
+        $items[$cart_item_key]['variation_id']  = $cart_item['variation_id'];
+        $items[$cart_item_key]['quantity']      = $cart_item['quantity'];
       }
   
       $draft_order_data = array(
-        'transaction_id'      => $transaction->transaction->id,
-        'transaction_status'  => $transaction->transaction->status,
-        'cart_items'          => json_encode( $items ),
-        'order_id'            => null,
-        'order_key'           => null,
+        'transaction_id'     => $transaction->transaction->id,
+        'transaction_status' => $transaction->transaction->status,
+        'cart_items'         => json_encode( $items ),
+        'order_id'           => null,
+        'order_key'          => null,
       );
   
       $arkpay_gateway->save_draft_order( $draft_order_data );
