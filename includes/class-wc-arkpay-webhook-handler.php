@@ -32,7 +32,16 @@ function handle_arkpay_transaction_status_change_webhook() {
         }
 
         $merchant_transaction_id = $body->merchantTransactionId;
-        $order_exist = wc_get_order( $merchant_transaction_id );
+
+        if ( $body->status === 'COMPLETED' ) {
+            if ( strpos( $merchant_transaction_id, '__' ) !== false ) {
+                $parts = explode( '__', $merchant_transaction_id );
+                $merchant_transaction_id = $parts[0];
+            }
+        }
+
+        $order_id       = wc_get_order_id_by_order_key( $merchant_transaction_id );
+        $order_exist    = wc_get_order( $order_id );
 
         switch ( $body->status ) {
             case 'PROCESSING':
@@ -69,9 +78,9 @@ function handle_arkpay_transaction_status_change_webhook() {
                 if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'PROCESSING' ) {
                     update_transaction_status( $table_name, $transaction_id, $body->status );
                     $order_completed = wc_get_order( $draft_order_id );
-                    $order_completed->update_status( 'processing', 'Transaction has been completed.' );
+                    $order_completed->update_status( 'processing', __( 'Transaction has been completed.' ) );
                 } else {
-                    $order_exist->update_status( 'processing', 'Transaction has been completed.' );
+                    $order_exist->update_status( 'processing', __( 'Transaction has been completed.' ) );
                 }
                 break;
             case 'FAILED':

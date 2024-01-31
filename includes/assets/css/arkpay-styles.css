@@ -70,4 +70,12 @@ a#arkpay-pay-button:focus {
   border: 1px solid #dcdcdc;
 }
 
+.arkpay-form-container #invalid-card-number-message {
+  font-size: 11px;
+  color: #B00020;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Credit Card Form CSS - End */
