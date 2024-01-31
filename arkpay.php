@@ -27,7 +27,7 @@
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-	die;
+    die;
 }
 
 /**
@@ -42,8 +42,8 @@ define( 'ARKPAY_VERSION', '1.0.0' );
  * This action is documented in includes/class-arkpay-activator.php
  */
 function activate_arkpay() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-activator.php';
-	Arkpay_Activator::activate();
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-activator.php';
+    Arkpay_Activator::activate();
 }
 
 /**
@@ -51,8 +51,8 @@ function activate_arkpay() {
  * This action is documented in includes/class-arkpay-deactivator.php
  */
 function deactivate_arkpay() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-deactivator.php';
-	Arkpay_Deactivator::deactivate();
+    require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-deactivator.php';
+    Arkpay_Deactivator::deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_arkpay' );
@@ -68,14 +68,20 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-arkpay.php';
  * Initialize Arkpay payment gateway.
  */
 function arkpay_payment_init() {
-	if ( class_exists( 'WC_Payment_Gateway' ) ) {
-		require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-gateway-arkpay.php';
-		require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-cart-button.php';
-		require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-checkout-button.php';
+    if ( class_exists( 'WC_Payment_Gateway' ) ) {
+        require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-gateway-arkpay.php';
 
-		// Register API webhook
-		add_action( 'rest_api_init', 'register_api_webhook_route' );
-	}
+        $enable_direct = get_option( 'woocommerce_arkpay_payment_settings' )['enable_direct'];
+        if ( $enable_direct === 'no' ) {
+            require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-cart-button.php';
+        }
+        
+        require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-checkout-button.php';
+        require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-arkpay-thankyou-redirect.php';
+
+        // Register API webhook
+        add_action( 'rest_api_init', 'register_api_webhook_route' );
+    }
 }
 add_action( 'plugins_loaded', 'arkpay_payment_init', 11 );
 
@@ -86,9 +92,9 @@ add_action( 'plugins_loaded', 'arkpay_payment_init', 11 );
 * @return array Modified list of available payment gateways.
 */
 function add_arkpay_payment_gateway_to_wc( $gateways ) {
-	$gateways[] = 'WC_Gateway_Arkpay';
+    $gateways[] = 'WC_Gateway_Arkpay';
 
-	return $gateways;
+    return $gateways;
 }
 add_filter( 'woocommerce_payment_gateways', 'add_arkpay_payment_gateway_to_wc' );
 
@@ -96,13 +102,12 @@ add_filter( 'woocommerce_payment_gateways', 'add_arkpay_payment_gateway_to_wc' )
  * Register ArkPay API webhook route.
  */
 function register_api_webhook_route() {
-	$payment_gateway = new WC_Gateway_Arkpay();
+    require_once 'includes/class-wc-arkpay-webhook-handler.php';
 	
-	// TODO - Fix register route notice
-	@register_rest_route( 'api/arkpay', '/webhook', array(
-		'methods'  => 'POST',
-		'callback' => array( $payment_gateway, 'handle_webhook' ),
-	) );
+    @register_rest_route( 'api/arkpay', '/webhook', array(
+        'methods'  => 'POST',
+        'callback' => 'handle_arkpay_transaction_status_change_webhook',
+    ) );
 }
 
 /**
@@ -116,8 +121,8 @@ function register_api_webhook_route() {
  */
 function run_arkpay() {
 
-	$plugin = new Arkpay();
-	$plugin->run();
+    $plugin = new Arkpay();
+    $plugin->run();
 
 }
 run_arkpay();
