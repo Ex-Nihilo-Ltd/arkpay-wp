@@ -80,8 +80,6 @@ function arkpay_save_draft_order() {
             'handlePayment' => false,
         );
 
-        error_log( 'ORDER DATA RETURN URL: ' . print_r($order_data, true) );
-
         $transaction = $arkpay_gateway->create_arkpay_transaction( $order_data );
 
         if ( $transaction ) {
