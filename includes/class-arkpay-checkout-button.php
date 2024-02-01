@@ -20,7 +20,7 @@ function arkpay_payment_change_button_text( $available_gateways ) {
   
 	if ( array_key_exists( 'arkpay_payment', $available_gateways ) ) {
     $button_text = $settings['button_text'] ? $settings['button_text'] : 'Pay via ArkPay';
-		$available_gateways['arkpay_payment']->order_button_text = esc_html__( $button_text , 'arkpay' );
+		$available_gateways['arkpay_payment']->order_button_text = esc_html__( $button_text , 'arkpay-payment' );
 	}
 
 	return $available_gateways;

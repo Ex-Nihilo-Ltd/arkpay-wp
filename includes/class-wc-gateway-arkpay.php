@@ -163,8 +163,8 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     protected function setup_properties() {
         $this->id                 = self::ID;
         $this->icon               = apply_filters( 'woocommerce_arkpay_icon', plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ) );
-        $this->method_title       = __( 'Arkpay', 'arkpay' );
-        $this->method_description = __( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay' );
+        $this->method_title       = __( 'Arkpay', 'arkpay-payment' );
+        $this->method_description = __( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay-payment' );
         $this->has_fields         = false;
     }
 
@@ -174,57 +174,57 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     public function init_form_fields() {
         $this->form_fields = apply_filters( 'arkpay_payments_fields', array(
             'enabled'       => array(
-                'title'             => __( 'Enable/Disable', 'arkpay' ),
-                'label'             => __( 'Enable Arkpay Payment', 'arkpay' ),
+                'title'             => __( 'Enable/Disable', 'arkpay-payment' ),
+                'label'             => __( 'Enable Arkpay Payment', 'arkpay-payment' ),
                 'type'              => 'checkbox',
                 'description'       => '',
                 'default'           => 'no'
             ),
             'title'         => array(
-                'title'             => __( 'Title', 'arkpay' ),
-                'description'       => __( 'This controls the title which the user sees during checkout.', 'arkpay' ),
-                'default'           => __( 'Arkpay Payment', 'arkpay' ),
+                'title'             => __( 'Title', 'arkpay-payment' ),
+                'description'       => __( 'This controls the title which the user sees during checkout.', 'arkpay-payment' ),
+                'default'           => __( 'Arkpay Payment', 'arkpay-payment' ),
                 'type'              => 'text',
                 'desc_tip'          => true,
             ),
             'description'   => array(
-                'title'             => __( 'Description', 'arkpay' ),
-                'description'       => __( 'Arkpay description.', 'arkpay' ),
-                'default'           => __( 'Pay with your credit card via arkpay payment gateway.', 'arkpay' ),
+                'title'             => __( 'Description', 'arkpay-payment' ),
+                'description'       => __( 'Arkpay description.', 'arkpay-payment' ),
+                'default'           => __( 'Pay with your credit card via arkpay payment gateway.', 'arkpay-payment' ),
                 'type'              => 'textarea',
                 'desc_tip'          => true,
             ),
             'testmode'      => array(
-                'title'             => __( 'Test mode', 'arkpay' ),
-                'label'             => __( 'Enable Test Mode', 'arkpay' ),
-                'description'       => __( 'Place the payment gateway in test mode using test API keys.', 'arkpay' ),
+                'title'             => __( 'Test mode', 'arkpay-payment' ),
+                'label'             => __( 'Enable Test Mode', 'arkpay-payment' ),
+                'description'       => __( 'Place the payment gateway in test mode using test API keys.', 'arkpay-payment' ),
                 'type'              => 'checkbox',
                 'default'           => 'no',
                 'desc_tip'          => true,
             ),
             'api_key'       => array(
-                'title'             => __( 'API Key', 'arkpay' ),
+                'title'             => __( 'API Key', 'arkpay-payment' ),
                 'type'              => 'text',
             ),
             'secret_key'    => array(
-                'title'             => __( 'Secret Key', 'arkpay' ),
+                'title'             => __( 'Secret Key', 'arkpay-payment' ),
                 'type'              => 'text',
             ),
             'button_text'   => array(
-                'title'             => __( 'Checkout Page - Button', 'arkpay' ),
+                'title'             => __( 'Checkout Page - Button', 'arkpay-payment' ),
                 'type'              => 'text',
             ),
             'webhook_url'   => array(
-                'title'             => __( 'Webhook URL: ', 'arkpay' ),
+                'title'             => __( 'Webhook URL: ', 'arkpay-payment' ),
                 'type'              => 'text',
                 'desc_tip'          => 'Copy this webhook URL to your ArkPay store settings.',
                 'default'           => $this->get_webhook_url(),
                 'custom_attributes' => array( 'readonly' => 'readonly' ),
             ),
             'enable_direct' => array(
-                'title'             => __( 'Payment method', 'arkpay' ),
-                'label'             => __( 'Enable direct API', 'arkpay' ),
-                'description'       => __( 'By checking this box, Arkpay gateway works through Direct API. If unchecked, HPP is being used (a default method).', 'arkpay' ),
+                'title'             => __( 'Payment method', 'arkpay-payment' ),
+                'label'             => __( 'Enable direct API', 'arkpay-payment' ),
+                'description'       => __( 'By checking this box, Arkpay gateway works through Direct API. If unchecked, HPP is being used (a default method).', 'arkpay-payment' ),
                 'type'              => 'checkbox',
                 'default'           => 'no',
                 'desc_tip'          => true,
@@ -343,7 +343,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             $options[ $method->get_method_title() ] = array();
 
             // Translators: %1$s shipping method name.
-            $options[ $method->get_method_title() ][ $method->id ] = sprintf( __( 'Any &quot;%1$s&quot; method', 'arkpay' ), $method->get_method_title() );
+            $options[ $method->get_method_title() ][ $method->id ] = sprintf( __( 'Any &quot;%1$s&quot; method', 'arkpay-payment' ), $method->get_method_title() );
 
             foreach ( $zones as $zone ) {
 
@@ -358,10 +358,10 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                     $option_id = $shipping_method_instance->get_rate_id();
 
                     // Translators: %1$s shipping method title, %2$s shipping method id.
-                    $option_instance_title = sprintf( __( '%1$s (#%2$s)', 'arkpay' ), $shipping_method_instance->get_title(), $shipping_method_instance_id );
+                    $option_instance_title = sprintf( __( '%1$s (#%2$s)', 'arkpay-payment' ), $shipping_method_instance->get_title(), $shipping_method_instance_id );
 
                     // Translators: %1$s zone name, %2$s shipping method instance name.
-                    $option_title = sprintf( __( '%1$s &ndash; %2$s', 'arkpay' ), $zone->get_id() ? $zone->get_zone_name() : __( 'Other locations', 'arkpay' ), $option_instance_title );
+                    $option_title = sprintf( __( '%1$s &ndash; %2$s', 'arkpay-payment' ), $zone->get_id() ? $zone->get_zone_name() : __( 'Other locations', 'arkpay-payment' ), $option_instance_title );
 
                     $options[ $method->get_method_title() ][ $option_id ] = $option_title;
                 }
@@ -499,7 +499,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 }
 
                 if ( $pay_transaction_response->status === 'PROCESSING' && 'We are proccessing your payment details. Please wait...' === $pay_transaction_response->message ) {
-                    $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), __( 'Processing transaction...', 'arkpay' ) );
+                    $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), __( 'Processing transaction...', 'arkpay-payment' ) );
                     
                     WC()->cart->empty_cart();
 
@@ -632,7 +632,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             'handlePayment'         => $order['handlePayment'],
         );
 
-        $signature = $this->create_signature( $http_method, $api_uri, json_encode( $body ), $secret_key );
+        $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
         $headers = array(
             'Content-Type: ' . 'application/json',
             'X-Api-Key: ' . $api_key,
@@ -642,7 +642,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $ch = curl_init( $api_url . $endpoint );
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt( $ch, CURLOPT_POST, true );
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
         curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 
         $response = curl_exec( $ch );
@@ -722,7 +722,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             ),
         );
 
-        $signature = $this->create_signature( $http_method, $api_uri, json_encode( $body, JSON_UNESCAPED_SLASHES ), $secret_key );
+        $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $secret_key );
         $headers = array(
             'Content-Type: ' . 'application/json',
             'X-Api-Key: ' . $api_key,
@@ -732,7 +732,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $ch = curl_init( $api_url . $endpoint );
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt( $ch, CURLOPT_POST, true );
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
         curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 
         $response = curl_exec( $ch );
