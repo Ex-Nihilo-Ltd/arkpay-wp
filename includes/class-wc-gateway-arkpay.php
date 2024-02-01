@@ -140,7 +140,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $table_order = $wpdb->prefix . 'arkpay_draft_order';
 
         // Check if the draft order table already exists
-        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_order'" ) != $table_order ) {
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '%s'", $table_order ) != $table_order ) {
             $charset_collate = $wpdb->get_charset_collate();
 
             $sql_order = "CREATE TABLE $table_order (

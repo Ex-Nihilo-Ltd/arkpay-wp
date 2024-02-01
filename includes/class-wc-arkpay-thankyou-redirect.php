@@ -14,7 +14,7 @@ function thankyou_redirect_page() {
 
         $table_name = $wpdb->prefix . 'arkpay_draft_order';
         $transaction_id = $_GET['arkpayTransactionId'];
-        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE transaction_id=%s", $transaction_id ) );
+        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %s WHERE transaction_id=%s", $table_name, $transaction_id ) );
         if ( !empty( $results ) ) {
             foreach ( $results as $row ) {
                 $order_transaction_id   = $row->transaction_id;
