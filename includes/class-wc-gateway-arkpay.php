@@ -165,7 +165,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $this->icon               = apply_filters( 'woocommerce_arkpay_icon', plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ) );
         $this->method_title       = __( 'Arkpay', 'arkpay-payment' );
         $this->method_description = __( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay-payment' );
-        $this->has_fields         = false;
+        $this->has_fields         = true;
     }
 
     /**
@@ -230,59 +230,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 'desc_tip'          => true,
             ),
         ) );
-    }
-
-    /**
-     * Check If The Gateway Is Available For Use.
-     *
-     * @return bool
-     */
-    public function is_available() {
-        $order          = null;
-        $needs_shipping = false;
-
-        // Test if shipping is needed first.
-        if ( WC()->cart && WC()->cart->needs_shipping() ) {
-            $needs_shipping = true;
-        } elseif ( is_page( wc_get_page_id( 'checkout' ) ) && 0 < get_query_var( 'order-pay' ) ) {
-            $order_id = absint( get_query_var( 'order-pay' ) );
-            $order    = wc_get_order( $order_id );
-
-            // Test if order needs shipping.
-            if ( $order && 0 < count( $order->get_items() ) ) {
-                foreach ( $order->get_items() as $item ) {
-                    $_product = $item->get_product();
-                    if ( $_product && $_product->needs_shipping() ) {
-                        $needs_shipping = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        $needs_shipping = apply_filters( 'woocommerce_cart_needs_shipping', $needs_shipping );
-
-        // Virtual order, with virtual disabled.
-        if ( ! $this->enable_for_virtual && ! $needs_shipping ) {
-            return false;
-        }
-
-        // Only apply if all packages are being shipped via chosen method, or order is virtual.
-        if ( ! empty( $this->enable_for_methods ) && $needs_shipping ) {
-            $order_shipping_items            = is_object( $order ) ? $order->get_shipping_methods() : false;
-            $chosen_shipping_methods_session = WC()->session->get( 'chosen_shipping_methods' );
-
-            if ( $order_shipping_items ) {
-                $canonical_rate_ids = $this->get_canonical_order_shipping_item_rate_ids( $order_shipping_items );
-            } else {
-                $canonical_rate_ids = $this->get_canonical_package_rate_ids( $chosen_shipping_methods_session );
-            }
-
-            if ( ! count( $this->get_matching_rates( $canonical_rate_ids ) ) ) {
-                return false;
-            }
-        }
-        return parent::is_available();
     }
 
     /**
