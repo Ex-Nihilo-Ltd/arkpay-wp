@@ -445,7 +445,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                     wc_add_notice( 'ArkPay: ' . $pay_transaction_response->message . '.', 'error' );
                 }
 
-                if ( $pay_transaction_response->status === 'PROCESSING' && 'We are proccessing your payment details. Please wait...' === $pay_transaction_response->message ) {
+                if ( $pay_transaction_response->status === 'PROCESSING' && $pay_transaction_response->redirectUrl ) {
                     $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), __( 'Processing transaction...', 'arkpay-payment' ) );
                     
                     WC()->cart->empty_cart();
@@ -663,7 +663,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             'customerAddress'   => array(
                 'address'       => $order['billing']['address_1'],
                 'city'          => $order['billing']['city'],
-                'state'         => $order['billing']['state'],
+                'state'         => strlen($order['billing']['state']) == 2 ? $order['billing']['state'] : '',
                 'countryCode'   => $order['billing']['country'],
                 'zipCode'       => strval( $order['billing']['postcode'] ),
             ),
