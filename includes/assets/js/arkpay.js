@@ -57,11 +57,22 @@ jQuery( function( $ ) {
             });
         }
     }
-    creditCardDetailsFormat();
 
     $( document.body ).trigger( 'update_checkout' );
+
     $( document.body ).on( 'updated_checkout', function() {
-        creditCardDetailsFormat();
+        const current = $('form[name="checkout"] input[name="payment_method"]:checked').val();
+        if (current == 'arkpay_payment') {
+            creditCardDetailsFormat();
+        }
+    });
+    
+    $('form.checkout').on('change', 'input[name="payment_method"]', function () {
+        $('#place_order').attr('disabled', false)
+        const current = $('form[name="checkout"] input[name="payment_method"]:checked').val();
+        if (current == 'arkpay_payment') {
+            creditCardDetailsFormat();
+        }
     });
 
 });
