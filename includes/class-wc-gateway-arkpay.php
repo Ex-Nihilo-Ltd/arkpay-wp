@@ -140,7 +140,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $table_order = $wpdb->prefix . 'arkpay_draft_order';
 
         // Check if the draft order table already exists
-        if ( $wpdb->get_var( "SHOW TABLES LIKE '%s'", $table_order ) != $table_order ) {
+        if ( $wpdb->get_var( "SHOW TABLES LIKE '$table_order'" ) != $table_order ) {
             $charset_collate = $wpdb->get_charset_collate();
 
             $sql_order = "CREATE TABLE $table_order (
@@ -634,22 +634,25 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
         $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
         $headers = array(
-            'Content-Type'  => 'application/json',
-            'X-Api-Key'     => $api_key,
-            'Signature'     => $signature,
+            'Content-Type: ' . 'application/json',
+            'X-Api-Key: ' . $api_key,
+            'Signature: ' . $signature,
         );
 
-        $response = wp_remote_post( $api_url . $endpoint, array(
-            'body'    => wp_json_encode( $body ),
-            'headers' => $headers,
-        ) );
-    
-        if ( is_wp_error( $response ) ) {
-            echo 'Error: ' . $response->get_error_message();
-            return false;
+        $ch = curl_init( $api_url . $endpoint );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch, CURLOPT_POST, true );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+
+        $response = curl_exec( $ch );
+
+        if ( curl_errno( $ch ) ) {
+            echo 'Error: ' . curl_error( $ch );
         }
-    
-        return json_decode( wp_remote_retrieve_body( $response ) );
+
+        curl_close( $ch );
+        return json_decode( $response );
     }
 
     /**
@@ -721,21 +724,24 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
         $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $secret_key );
         $headers = array(
-            'Content-Type'  => 'application/json',
-            'X-Api-Key'     => $api_key,
-            'Signature'     => $signature,
+            'Content-Type: ' . 'application/json',
+            'X-Api-Key: ' . $api_key,
+            'Signature: ' . $signature,
         );
 
-        $response = wp_remote_post( $api_url . $endpoint, array(
-            'body'    => wp_json_encode( $body ),
-            'headers' => $headers,
-        ) );
-    
-        if ( is_wp_error( $response ) ) {
-            echo 'Error: ' . $response->get_error_message();
-            return false;
+        $ch = curl_init( $api_url . $endpoint );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch, CURLOPT_POST, true );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, wp_json_encode( $body ) );
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+
+        $response = curl_exec( $ch );
+
+        if ( curl_errno( $ch ) ) {
+            echo 'Error: ' . curl_error( $ch );
         }
-    
-        return json_decode( wp_remote_retrieve_body( $response ) );
+        
+        curl_close( $ch );
+        return json_decode( $response );
     }
 }
