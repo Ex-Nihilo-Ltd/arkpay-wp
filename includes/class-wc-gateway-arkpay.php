@@ -663,11 +663,14 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             'customerAddress'   => array(
                 'address'       => $order['billing']['address_1'],
                 'city'          => $order['billing']['city'],
-                'state'         => strlen($order['billing']['state']) == 2 ? $order['billing']['state'] : '',
                 'countryCode'   => $order['billing']['country'],
                 'zipCode'       => strval( $order['billing']['postcode'] ),
             ),
         );
+
+        if( 'US' === $order['billing']['country'] || 'CA' === $order['billing']['country'] ) {
+            $body['customerAddress']['state'] = $order['billing']['state'];
+        }
 
         $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $secret_key );
         $headers = array(
