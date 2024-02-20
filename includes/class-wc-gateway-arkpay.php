@@ -410,6 +410,10 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
             $transaction = $this->create_arkpay_transaction( $data );
 
+            if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
+                wc_add_notice( 'ArkPay: ' . $transaction->message . '.', 'error' );
+            }
+
             if ( $transaction && isset( $transaction->transaction->id ) ) {
                 $transaction_id             = $transaction->transaction->id;
                 $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
@@ -589,10 +593,11 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $response = wp_remote_post( $api_url . $endpoint, array(
             'body'    => wp_json_encode( $body ),
             'headers' => $headers,
+            'timeout'     => 45,
         ) );
 
         if ( is_wp_error( $response ) ) {
-            echo 'Error: ' . $response->get_error_message();
+            wc_add_notice( 'ArkPay: ' . $response->get_error_message() . '.', 'error' );
             return false;
         }
 
@@ -647,7 +652,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $api_url        = $this->get_api_url();
         $api_uri        = '/api/v1/merchant/api/transactions/' . $transaction_id . '/pay';
         $endpoint       = '/merchant/api/transactions/' . $transaction_id . '/pay';
-
+	
         $body = array(
             'cardNumber'        => str_replace( ' ', '', strval( $credit_card['card_number'] ) ),
             'cardExpiryDate'    => strval( $credit_card['expiration_date'] ),
@@ -663,7 +668,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 'countryCode'   => $order['billing']['country'],
                 'zipCode'       => strval( $order['billing']['postcode'] ),
             ),
-        );
+    	);
 
         if( 'US' === $order['billing']['country'] || 'CA' === $order['billing']['country'] ) {
             $body['customerAddress']['state'] = $order['billing']['state'];
@@ -679,10 +684,11 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $response = wp_remote_post( $api_url . $endpoint, array(
             'body'    => wp_json_encode( $body ),
             'headers' => $headers,
+            'timeout'     => 45,
         ) );
 
         if ( is_wp_error( $response ) ) {
-            echo 'Error: ' . $response->get_error_message();
+            wc_add_notice( 'ArkPay: ' . $response->get_error_message() . '.', 'error' );
             return false;
         }
 
