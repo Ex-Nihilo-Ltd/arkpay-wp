@@ -410,10 +410,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
             $transaction = $this->create_arkpay_transaction( $data );
 
-            if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
-                wc_add_notice( 'ArkPay: ' . $transaction->message . '.', 'error' );
-            }
-
             if ( $transaction && isset( $transaction->transaction->id ) ) {
                 $transaction_id             = $transaction->transaction->id;
                 $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
@@ -439,6 +435,10 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 update_post_meta( $order_id, '_transaction_id' . '_' . $unique_id, sanitize_text_field( $transaction_id ) );
                 update_post_meta( $order_id, '_merchant_transaction_id' . '_' . $unique_id, sanitize_text_field( $merchant_transaction_id ) );
                 update_post_meta( $order_id, '_transaction_status' . '_' . $unique_id, sanitize_text_field( $transaction_status ) );
+            }
+
+            if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
+                wc_add_notice( 'ArkPay: ' . $transaction->message . '.', 'error' );
             }
 
             if ( $transaction_id && $transaction_status === 'NOT_STARTED' ) {
