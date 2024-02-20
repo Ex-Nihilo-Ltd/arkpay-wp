@@ -68,7 +68,7 @@ jQuery( function( $ ) {
     });
     
     $('form.checkout').on('change', 'input[name="payment_method"]', function () {
-        $('#place_order').attr('disabled', false)
+        $('#place_order').attr('disabled', false);
         const current = $('form[name="checkout"] input[name="payment_method"]:checked').val();
         if (current == 'arkpay_payment') {
             creditCardDetailsFormat();
