@@ -33,7 +33,7 @@ function handle_arkpay_transaction_status_change_webhook() {
 
         $merchant_transaction_id = $body->merchantTransactionId;
 
-        if ( $body->status === 'COMPLETED' ) {
+        if ( $body->status === 'COMPLETED' || $body->status === 'FAILED' ) {
             if ( strpos( $merchant_transaction_id, '__' ) !== false ) {
                 $parts = explode( '__', $merchant_transaction_id );
                 $merchant_transaction_id = $parts[0];
@@ -84,7 +84,13 @@ function handle_arkpay_transaction_status_change_webhook() {
                 }
                 break;
             case 'FAILED':
-                update_transaction_status( $table_name, $transaction_id, $body->status );
+                if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'PROCESSING' ) {
+                    update_transaction_status( $table_name, $transaction_id, $body->status );
+                    $order_failed = wc_get_order( $draft_order_id );
+                    $order_failed->update_status( 'failed', __( 'Transaction has been failed.' ) );
+                } else {
+                    $order_exist->update_status( 'failed', __( 'Transaction has been failed.' ) );
+                }
                 break;
         }
     }
