@@ -3,6 +3,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
+
+add_action( 'woocommerce_widget_shopping_cart_buttons', 'add_arkpay_cart_pay_button' );
 add_action( 'woocommerce_proceed_to_checkout', 'add_arkpay_cart_pay_button' );
 /**
  * Adds a custom button to the cart page for ArkPay payment.
