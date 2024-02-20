@@ -410,7 +410,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
             $transaction = $this->create_arkpay_transaction( $data );
 
-            if ( isset( $transaction->statusCode ) && 400 === $transaction->statusCode ) {
+            if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
                 if (strpos($transaction->message, 'Currency') !== false && strpos($transaction->message, 'is not allowed') !== false) {
                     wc_add_notice( 'ArkPay: ' . $transaction->message . '.', 'error' );
                 }
