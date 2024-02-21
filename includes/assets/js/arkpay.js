@@ -30,7 +30,11 @@ jQuery( function( $ ) {
         if ( cardNumber && expirationDate && securityCode ) {
             var placeOrderButton = $('#place_order');
             var invalidCardNumberBox = $('#invalid-card-number-message');
-            placeOrderButton.attr("disabled", true);
+
+            if ( cardNumber.length == 0 || cardNumber.value.replace(/\D/g, '').substring(0, 16).length < 16 ) {
+                placeOrderButton.attr("disabled", true);
+            }
+
             cardNumber.addEventListener('input', function () {
                 this.value = this.value.replace(/\D/g, '').substring(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
 
