@@ -62,4 +62,3 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Update - Updating README.txt
-
