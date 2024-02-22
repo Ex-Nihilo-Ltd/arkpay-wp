@@ -149,6 +149,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             cart_items LONGTEXT,
             order_id VARCHAR(255),
             order_key VARCHAR(255),
+            shipping LONGTEXT,
             PRIMARY KEY (transaction_id)
             ) $charset_collate;";
 
@@ -591,9 +592,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         );
 
         $response = wp_remote_post( $api_url . $endpoint, array(
-            'body'    => wp_json_encode( $body ),
-            'headers' => $headers,
-            'timeout'     => 45,
+            'body'      => wp_json_encode( $body ),
+            'headers'   => $headers,
+            'timeout'   => 45,
         ) );
 
         if ( is_wp_error( $response ) ) {
@@ -629,6 +630,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $cart_items         = $order_data['cart_items'];
         $order_id           = $order_data['order_id'];
         $order_key          = $order_data['order_key'];
+        $shipping           = $order_data['shipping'];
 
         $wpdb->insert(
             $table_order,
@@ -638,6 +640,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 'cart_items'            => $cart_items,
                 'order_id'              => $order_id,
                 'order_key'             => $order_key,
+                'shipping'              => $shipping,
             ),
             array( '%s', '%s', '%s' )
         );
@@ -682,9 +685,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         );
 
         $response = wp_remote_post( $api_url . $endpoint, array(
-            'body'    => wp_json_encode( $body ),
-            'headers' => $headers,
-            'timeout'     => 45,
+            'body'      => wp_json_encode( $body ),
+            'headers'   => $headers,
+            'timeout'   => 45,
         ) );
 
         if ( is_wp_error( $response ) ) {

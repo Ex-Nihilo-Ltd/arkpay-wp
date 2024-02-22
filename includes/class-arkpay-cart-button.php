@@ -70,7 +70,7 @@ function arkpay_save_draft_order() {
         // ArkPay gateway
         $arkpay_gateway = new WC_Gateway_Arkpay();
 
-        $cart_total = WC()->cart->subtotal;
+        $cart_total = intval( WC()->cart->total );
         $currency = get_woocommerce_currency();
 
         // Create draft order for transaction
@@ -94,12 +94,33 @@ function arkpay_save_draft_order() {
                 $items[$cart_item_key]['quantity']      = $cart_item['quantity'];
             }
 
+            $session_instance = WC()->session;
+            $shipping_method_id = $session_instance->get('chosen_shipping_methods')[0];
+            
+            $chosen_shipping_methods = $session_instance->get('shipping_for_package_0')['rates'];
+            $shipping_method_cost = 0;
+            foreach ( $chosen_shipping_methods as $method_id => $rate ) {
+                if ( $method_id === $shipping_method_id ) {
+                    $shipping_method_title  = $rate->label;
+                    $shipping_method_cost   = $rate->cost;
+                    $shipping_items         = $rate->meta_data['Items'];
+                    break;
+                }
+            }
+
+            $shipping = array();
+            $shipping['shipping_method_id']     = $shipping_method_id;
+            $shipping['shipping_method_title']  = $shipping_method_title;
+            $shipping['shipping_method_cost']   = $shipping_method_cost;
+            $shipping['shipping_items']         = $shipping_items;
+
             $draft_order_data = array(
                 'transaction_id'        => $transaction->transaction->id,
                 'transaction_status'    => $transaction->transaction->status,
                 'cart_items'            => wp_json_encode( $items ),
                 'order_id'              => null,
                 'order_key'             => null,
+                'shipping'              => wp_json_encode( $shipping ),
             );
 
             $arkpay_gateway->save_draft_order( $draft_order_data );
