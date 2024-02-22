@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,3 +62,11 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Update - Updating README.txt
+
+== Changelog ==
+
+= 1.0.1 2024-02-22 =
+
+**ArkPay**
+
+* Fix - Adding shipping to orders via cart payments.
