@@ -86,13 +86,25 @@ function arkpay_payment_init() {
 add_action( 'plugins_loaded', 'arkpay_payment_init', 11 );
 
 /**
-* Add Arkpay payment gateway to the list of available WooCommerce payment gateways.
-*
-* @param array $gateways List of available payment gateways.
-* @return array Modified list of available payment gateways.
-*/
+ * Adds the ArkPay payment gateway to the list of available WooCommerce payment gateways.
+ * Additionally, removes the ArkPay gateway from the list if direct payments are disabled in the settings
+ * and the current page is the checkout page but not a WooCommerce endpoint.
+ *
+ * @param array $gateways List of available payment gateways.
+ * @return array Modified list of available payment gateways.
+ */
 function add_arkpay_payment_gateway_to_wc( $gateways ) {
     $gateways[] = 'WC_Gateway_Arkpay';
+
+    $enable_direct = get_option( 'woocommerce_arkpay_payment_settings' )['enable_direct'];
+    if ( $enable_direct === 'no' && is_checkout() && ! is_wc_endpoint_url() ) {
+        foreach ( $gateways as $key => $gateway ) {
+            if ( 'WC_Gateway_Arkpay' === $gateway ) {
+                unset( $gateways[$key] );
+                break;
+            }
+        }
+    }
 
     return $gateways;
 }

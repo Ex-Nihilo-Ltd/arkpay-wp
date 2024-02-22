@@ -68,6 +68,7 @@ function handle_arkpay_transaction_status_change_webhook() {
                     );
 
                     $order->set_address( $address, 'billing' );
+                    $order->set_payment_method('Credit card (ArkPay)');
                     $order->calculate_totals();
                     $order->save();
 
