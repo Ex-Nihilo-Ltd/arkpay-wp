@@ -28,6 +28,7 @@ function handle_arkpay_transaction_status_change_webhook() {
                 $draft_transaction_status   = $row->transaction_status;
                 $draft_cart_items           = json_decode( $row->cart_items );
                 $draft_order_id             = $row->order_id ? $row->order_id : '';
+                $draft_shipping             = json_decode( $row->shipping );
             }
         }
 
@@ -68,6 +69,14 @@ function handle_arkpay_transaction_status_change_webhook() {
                     );
 
                     $order->set_address( $address, 'billing' );
+
+                    $shipping = new WC_Order_Item_Shipping();
+                    $shipping->set_method_id( $draft_shipping->shipping_method_id );
+                    $shipping->set_method_title( $draft_shipping->shipping_method_title );
+                    $shipping->set_total( $draft_shipping->shipping_method_cost );
+                    $shipping->save();
+                    $order->add_item( $shipping );
+
                     $order->set_payment_method('Credit card (ArkPay)');
                     $order->calculate_totals();
                     $order->save();
@@ -93,6 +102,11 @@ function handle_arkpay_transaction_status_change_webhook() {
                     }
                 } else {
                     $order_exist->update_status( 'failed', __( 'Transaction has been failed.', 'arkpay-payment' ) );
+                }
+                break;
+            case 'CANCELLED':
+                if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'NOT_STARTED' ) {
+                    update_transaction_status( $table_name, $transaction_id, $body->status );
                 }
                 break;
         }
