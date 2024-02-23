@@ -19,7 +19,7 @@ function add_arkpay_cart_pay_button() {
     $button_text = $settings['button_text'] ? $settings['button_text'] : 'Pay via Arkpay';
 
     ?>
-        <a href="#" class="checkout-button button alt wc-forward wp-element-button" id="arkpay-pay-button"><?php echo esc_html__( $button_text , 'arkpay-payment' ); ?></a>
+        <a href="#" class="checkout-button button alt wc-forward wp-element-button" id="arkpay-pay-button"><?php echo esc_html__( (string) $button_text , 'arkpay-payment' ); ?></a>
         <script>
             jQuery(function ($) {
                 $('#arkpay-pay-button').on('click', function (e) {
@@ -27,12 +27,12 @@ function add_arkpay_cart_pay_button() {
 
                     var cartData = {
                         action: 'arkpay_save_draft_order',
-                        security: '<?php echo wp_create_nonce( 'arkpay-save-draft-order' ); ?>',
+                        security: '<?php echo esc_attr( wp_create_nonce( 'arkpay-save-draft-order' ) ); ?>',
                     };
 
                     $.ajax({
                         type: 'POST',
-                        url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+                        url: '<?php echo esc_attr( admin_url( 'admin-ajax.php' ) ); ?>',
                         data: cartData,
                         success: function (response) {
                             $(e.target).addClass('disabled');

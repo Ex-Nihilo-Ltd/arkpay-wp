@@ -78,3 +78,4 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Fix - Fix order amount type.
+* Fix - Fixed some plugin error/warning messages.

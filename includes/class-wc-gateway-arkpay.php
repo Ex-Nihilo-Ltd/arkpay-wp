@@ -78,11 +78,11 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         add_action( 'woocommerce_email_before_order_table', array( $this, 'email_instructions' ), 10, 3 );
 
         // Styles
-        wp_register_style( 'arkpay_styles', plugins_url( 'assets/css/arkpay-styles.css', __FILE__ ) );
+        wp_register_style( 'arkpay_styles', plugins_url( 'assets/css/arkpay-styles.css', __FILE__ ), array(), ARKPAY_VERSION );
         wp_enqueue_style( 'arkpay_styles' );
 
         // JS
-        wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ) );
+        wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ), ARKPAY_VERSION, true );
 
         // Create database table
         $this->create_arkpay_draft_order_table();
