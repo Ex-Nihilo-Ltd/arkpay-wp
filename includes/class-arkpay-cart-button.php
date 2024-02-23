@@ -70,7 +70,7 @@ function arkpay_save_draft_order() {
         // ArkPay gateway
         $arkpay_gateway = new WC_Gateway_Arkpay();
 
-        $cart_total = intval( WC()->cart->total );
+        $cart_total = floatval( WC()->cart->total );
         $currency = get_woocommerce_currency();
 
         // Create draft order for transaction
