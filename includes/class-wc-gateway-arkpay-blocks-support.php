@@ -36,11 +36,6 @@ final class WC_Gateway_Arkpay_Blocks_Support extends AbstractPaymentMethodType {
             'testmode'      => $this->get_setting( 'testmode' ),
             'button_text'   => $this->get_setting( 'button_text' ),
             'icon'          => plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ),
-            'payment_fields' => $this->get_payment_fields(),
         );
-    }
-
-    private function get_payment_fields() {
-        return 'field';
     }
 }

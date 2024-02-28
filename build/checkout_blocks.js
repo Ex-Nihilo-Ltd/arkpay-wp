@@ -36,7 +36,6 @@ const options = {
 
 registerPaymentMethod( options );
 
-
 jQuery( function( $ ) {
     $( window ).load( function() {
         $('#radio-control-wc-payment-method-options-arkpay_payment__label').append('<img src="' + settings.icon + '" alt="ArkPay Logo" style="margin-left: 10px;" />');
