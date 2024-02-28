@@ -16,7 +16,7 @@
  * Plugin Name:       Arkpay
  * Plugin URI:        https://arkpay.com
  * Description:       The Smartest, Fastest & Most Secure Payment Processor.
- * Version:           1.0.2
+ * Version:           1.0.3
  * Author:            Arkpay
  * Author URI:        https://arkpay.com/
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'ARKPAY_VERSION', '1.0.2' );
+define( 'ARKPAY_VERSION', '1.0.3' );
 
 /**
  * The code that runs during plugin activation.
@@ -121,6 +121,41 @@ function register_api_webhook_route() {
         'callback' => 'handle_arkpay_transaction_status_change_webhook',
     ) );
 }
+
+/**
+ * Checks if the WooCommerce cart_checkout_blocks feature is available
+ * and declares compatibility with it.
+ *
+ * @return void
+ */
+function declare_cart_checkout_blocks_compatibility() {
+    if( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+            'cart_checkout_blocks',
+            __FILE__,
+            false
+        );
+    }
+}
+add_action( 'before_woocommerce_init', 'declare_cart_checkout_blocks_compatibility' );
+
+/**
+ * Registers the ArkPay payment method for WooCommerce Cart/Checkout Blocks
+ * feature when the woocommerce_blocks_loaded action is triggered.
+ *
+ * @return void
+ */
+function register_arkpay_payment_method() {
+    require_once __DIR__ . '/includes/class-wc-gateway-arkpay-blocks-support.php';
+    
+    add_action(
+        'woocommerce_blocks_payment_method_type_registration',
+        function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
+            $payment_method_registry->register( new WC_Gateway_Arkpay_Blocks_Support );
+        }
+    );
+}
+add_action( 'woocommerce_blocks_loaded', 'register_arkpay_payment_method' );
 
 /**
  * Begins execution of the plugin.

@@ -52,7 +52,7 @@ a#arkpay-pay-button:focus {
   grid-template-rows: 90px 90px 90px;
   grid-template-areas: "name name""number number""expiration security";
   max-width: 400px;
-  padding: 20px;
+  padding: 10px;
   color: #707070;
 }
 
@@ -62,9 +62,9 @@ a#arkpay-pay-button:focus {
 }
 
 .arkpay-form-container input {
-  margin-top: 3px;
-  padding: 15px;
+  padding: 12px 14px;
   font-size: 16px;
+  line-height: 16px;
   width: 100%;
   border-radius: 3px;
   border: 1px solid #dcdcdc;
