@@ -155,24 +155,24 @@ window.fetch = async function ( url, options ) {
 
             arguments[1].body = JSON.stringify( decodedBody );
         }
-    }
 
-    const response = await originalFetch.apply( this, arguments );
-
-    if ( 200 !== response.status ) {
-        const responseBodyText = JSON.parse( await response.text() );
+        const response = await originalFetch.apply( this, arguments );
     
-        function checkElement() {
-            var checkoutNoticeMessage = document.querySelector( 'div.wc-block-components-notices > div > div > div' );
-            if ( checkoutNoticeMessage ) {
-                clearInterval( checkInterval );
-                if ( responseBodyText.data ) {
-                    checkoutNoticeMessage.innerHTML = responseBodyText.data;
+        if ( 200 !== response.status ) {
+            const responseBodyText = JSON.parse( await response.text() );
+        
+            function checkElement() {
+                var checkoutNoticeMessage = document.querySelector( 'div.wc-block-components-notices > div > div > div' );
+                if ( checkoutNoticeMessage ) {
+                    clearInterval( checkInterval );
+                    if ( responseBodyText.data ) {
+                        checkoutNoticeMessage.innerHTML = responseBodyText.data;
+                    }
                 }
             }
+            var checkInterval = setInterval( checkElement, 50 );
         }
-        var checkInterval = setInterval( checkElement, 50 );
     } else {
-        return response;
+        return originalFetch.apply( this, arguments );
     }
 };
