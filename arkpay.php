@@ -133,7 +133,7 @@ function declare_cart_checkout_blocks_compatibility() {
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
             'cart_checkout_blocks',
             __FILE__,
-            false
+            true
         );
     }
 }
