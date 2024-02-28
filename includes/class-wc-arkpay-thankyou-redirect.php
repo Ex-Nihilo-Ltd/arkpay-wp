@@ -16,14 +16,12 @@ function thankyou_redirect_page() {
         $transaction_id = sanitize_text_field( $_GET['arkpayTransactionId'] );
         $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE transaction_id=%s", $transaction_id ) );
         if ( !empty( $results ) ) {
-            foreach ( $results as $row ) {
-                $order_transaction_id   = $row->transaction_id;
-                $order_id               = $row->order_id;
-                $order_key              = $row->order_key;
-            }
+            $order_transaction_id   = $results[0]->transaction_id;
+            $order_id               = $results[0]->order_id;
+            $order_key              = $results[0]->order_key;
         }
 
-        if ( $transaction_id === $order_transaction_id ) {
+        if ( isset( $order_transaction_id ) && $transaction_id === $order_transaction_id ) {
             // Redirect to the thank you page
             $thank_you_page_url = wc_get_checkout_url() . 'order-received/' . $order_id . '/?key=' . $order_key;
             wp_safe_redirect( $thank_you_page_url );
