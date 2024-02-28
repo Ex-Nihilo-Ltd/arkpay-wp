@@ -403,7 +403,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             
             $data = array(
                 'id'            => strval( $order_data['order_key'] ),
-                'ammount'       => intval( $order_data['total'] ),
+                'ammount'       => floatval( $order_data['total'] ),
                 'currency'      => $order_data['currency'],
                 'description'   => 'Description.',
                 'handlePayment' => true,
