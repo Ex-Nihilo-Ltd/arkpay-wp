@@ -16,7 +16,7 @@ function handle_arkpay_transaction_status_change_webhook() {
 
     $signature = $payment_gateway->create_signature( $http_method, $webhook_url, $data, $secret_key );
 
-    if ( $signature === $headers['signature'] ) {
+    if ( isset( $headers['signature'] ) && $signature === $headers['signature'] ) {
         $body = json_decode( $data );
 
         $table_name = $wpdb->prefix . 'arkpay_draft_order';
@@ -110,6 +110,10 @@ function handle_arkpay_transaction_status_change_webhook() {
                 }
                 break;
         }
+    } else {
+        http_response_code( 401 );
+        echo 'Authentication failed.';
+        exit();
     }
 }
 
