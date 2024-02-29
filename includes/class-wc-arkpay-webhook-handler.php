@@ -112,7 +112,16 @@ function handle_arkpay_transaction_status_change_webhook() {
         }
     } else {
         http_response_code( 401 );
-        echo 'Authentication failed.';
+        $response = array(
+            'code'              => 401,
+            'message'           => 'Authentication failed.',
+            'http_method'       => $http_method,
+            'signature'         => $signature,
+            'request_signature' => $headers['signature'],
+            'webhook_url'       => $webhook_url,
+            'body'              => json_decode( $data ),
+        );
+        echo json_encode( $response );
         exit();
     }
 }
