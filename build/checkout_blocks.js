@@ -171,7 +171,11 @@ window.fetch = async function ( url, options ) {
                 }
             }
             var checkInterval = setInterval( checkElement, 50 );
+
+            return;
         }
+
+        return response;
     } else {
         return originalFetch.apply( this, arguments );
     }
