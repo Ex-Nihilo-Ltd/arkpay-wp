@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,3 +79,11 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 
 * Fix - Fix order amount type.
 * Fix - Fixed some plugin error/warning messages.
+
+== Changelog ==
+
+= 1.0.3 2024-02-29 =
+
+**ArkPay**
+
+* Fix - Webhook auth failed response.
