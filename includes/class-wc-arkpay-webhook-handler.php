@@ -34,15 +34,16 @@ function handle_arkpay_transaction_status_change_webhook() {
 
         $merchant_transaction_id = $body->merchantTransactionId;
 
-        if ( $body->status === 'COMPLETED' || $body->status === 'FAILED' ) {
+        if ( $body->status === 'COMPLETED' || $body->status === 'FAILED' || $body->status === 'PROCESSING' ) {
             if ( strpos( $merchant_transaction_id, '__' ) !== false ) {
                 $parts = explode( '__', $merchant_transaction_id );
                 $merchant_transaction_id = $parts[0];
             }
         }
 
-        $order_id       = wc_get_order_id_by_order_key( $merchant_transaction_id );
-        $order_exist    = wc_get_order( $order_id );
+        $order_id                       = wc_get_order_id_by_order_key( $merchant_transaction_id );
+        $order_transaction_meta_data    = get_post_meta( $order_id, '_transaction_data', true );
+        $order_exist                    = wc_get_order( $order_id );
 
         switch ( $body->status ) {
             case 'PROCESSING':
@@ -82,6 +83,8 @@ function handle_arkpay_transaction_status_change_webhook() {
                     $order->save();
 
                     update_transaction_status( $table_name, $transaction_id, $body->status, $order->get_id(), $order->get_order_key() );
+                } else {
+                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'PROCESSING' );
                 }
                 break;
             case 'COMPLETED':
@@ -90,6 +93,7 @@ function handle_arkpay_transaction_status_change_webhook() {
                     $order_completed = wc_get_order( $draft_order_id );
                     $order_completed->update_status( 'processing', __( 'Transaction has been completed.', 'arkpay-payment' ) );
                 } else {
+                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'COMPLETED' );
                     $order_exist->update_status( 'processing', __( 'Transaction has been completed.', 'arkpay-payment' ) );
                 }
                 break;
@@ -101,12 +105,16 @@ function handle_arkpay_transaction_status_change_webhook() {
                         $order_failed->update_status( 'failed', __( 'Transaction has been failed.', 'arkpay-payment' ) );
                     }
                 } else {
+                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'FAILED' );
                     $order_exist->update_status( 'failed', __( 'Transaction has been failed.', 'arkpay-payment' ) );
                 }
                 break;
             case 'CANCELLED':
                 if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'NOT_STARTED' ) {
                     update_transaction_status( $table_name, $transaction_id, $body->status );
+                } else {
+                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'CANCELLED' );
+                    $order_exist->update_status( 'CANCELLED', __( 'Transaction has been cancelled.', 'arkpay-payment' ) );
                 }
                 break;
         }
@@ -118,6 +126,27 @@ function handle_arkpay_transaction_status_change_webhook() {
         );
         echo json_encode( $response );
         exit();
+    }
+}
+
+/**
+ * Update order transaction status meta data.
+ *
+ * This function updates the transaction status meta data for an order.
+ *
+ * @param int    $order_id                    The ID of the order.
+ * @param array  $order_transaction_meta_data The array containing transaction meta data for the order.
+ * @param string $transaction_status          The status to be updated for the transaction.
+ * 
+ * @return void
+ */
+function update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, $transaction_status ) {
+    if ( $order_transaction_meta_data ) {
+        $last_transaction_key = count($order_transaction_meta_data) - 1;
+
+        $order_transaction_meta_data[$last_transaction_key]['_transaction_status'] = $transaction_status;
+
+        update_post_meta( $order_id, '_transaction_data', $order_transaction_meta_data );
     }
 }
 
