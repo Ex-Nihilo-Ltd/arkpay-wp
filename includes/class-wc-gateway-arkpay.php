@@ -438,9 +438,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 $transaction_status         = $transaction->transaction->status;
 
                 $meta_data = array(
-                    '_transaction_id'         => sanitize_text_field( $transaction_id ),
-                    '_merchant_transaction_id'=> sanitize_text_field( $merchant_transaction_id ),
-                    '_transaction_status'     => sanitize_text_field( $transaction_status ),
+                    '_transaction_id'           => sanitize_text_field( $transaction_id ),
+                    '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
+                    '_transaction_status'       => sanitize_text_field( $transaction_status ),
                 );
             
                 $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
@@ -467,9 +467,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 $transaction_status         = $transaction->transaction->status;
 
                 $meta_data = array(
-                    '_transaction_id'         => sanitize_text_field( $transaction_id ),
-                    '_merchant_transaction_id'=> sanitize_text_field( $merchant_transaction_id ),
-                    '_transaction_status'     => sanitize_text_field( $transaction_status ),
+                    '_transaction_id'           => sanitize_text_field( $transaction_id ),
+                    '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
+                    '_transaction_status'       => sanitize_text_field( $transaction_status ),
                 );
             
                 $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
