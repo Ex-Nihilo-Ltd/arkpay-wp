@@ -7,16 +7,15 @@ function handle_arkpay_transaction_status_change_webhook() {
     global $wpdb;
     $payment_gateway = new WC_Gateway_Arkpay();
   
-    $data           = file_get_contents('php://input');
-    $headers        = getallheaders();
-    $settings       = $payment_gateway->get_arkpay_settings();
-    $secret_key     = $settings['secret_key'];
-    $webhook_url    = $settings['webhook_url'];
-    $http_method    = 'POST';
+    $request_signature = esc_sql( $_SERVER['HTTP_SIGNATURE'] );
+    $settings          = $payment_gateway->get_arkpay_settings();
+    $secret_key        = $settings['secret_key'];
+    $webhook_url       = $settings['webhook_url'];
+    $http_method       = 'POST';
 
     $signature = $payment_gateway->create_signature( $http_method, $webhook_url, $data, $secret_key );
 
-    if ( isset( $headers['signature'] ) && $signature === $headers['signature'] ) {
+    if ( isset( $request_signature ) && $signature === $request_signature ) {
         $body = json_decode( $data );
 
         $table_name = $wpdb->prefix . 'arkpay_draft_order';
@@ -117,7 +116,7 @@ function handle_arkpay_transaction_status_change_webhook() {
             'message'           => 'Authentication failed.',
             'http_method'       => $http_method,
             'signature'         => $signature,
-            'request_signature' => $headers['signature'],
+            'request_signature' => $request_signature,
             'webhook_url'       => $webhook_url,
             'body'              => json_decode( $data ),
         );

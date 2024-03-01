@@ -95,3 +95,9 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Fix - Enhanced response for webhook authentication failure.
+
+= 1.0.5 2024-03-01 =
+
+**ArkPay**
+
+* Fix - use $_SERVER instead of getallheaders()
