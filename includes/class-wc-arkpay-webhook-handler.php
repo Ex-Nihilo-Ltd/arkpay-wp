@@ -114,7 +114,7 @@ function handle_arkpay_transaction_status_change_webhook() {
         http_response_code( 401 );
         $response = array(
             'code'              => 401,
-            'message'           => 'Authentication failed.',
+            'message'           => 'Signature mismatch.',
         );
         echo json_encode( $response );
         exit();

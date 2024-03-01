@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -107,3 +107,9 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Fix - Webhook $data(body) missing.
+
+= 1.0.7 2024-03-01 =
+
+**ArkPay**
+
+* Fix - Webhook auth failed - signature mismatch message.
