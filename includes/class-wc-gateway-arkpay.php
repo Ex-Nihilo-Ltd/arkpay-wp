@@ -414,87 +414,107 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 $last_transaction_key = count( $order_transaction_meta_data ) - 1;
 
                 if ( ! in_array( $order_transaction_meta_data[$last_transaction_key]['_transaction_status'], [ 'FAILED', 'CANCELLED' ] ) ) {
-                    switch( $order_transaction_meta_data[$last_transaction_key]['_transaction_status'] ) {
-                        case 'PROCESSING':
-                            wc_add_notice( __( 'ArkPay: Last transaction still in process. Try again in a few minutes.', 'arkpay-payment' ), 'error' );
-                            return;
-                            break;
-                        case 'COMPLETED':
-                            wc_add_notice( __( 'ArkPay: Transaction already completed.', 'arkpay-payment' ), 'error' );
-                            return;
-                            break;
-                    }
 
-                    wc_add_notice( __( 'ArkPay: Something went wrong.', 'arkpay-payment' ), 'error' );
+                    if ( $order_transaction_meta_data[$last_transaction_key]['_transaction_status'] === 'NOT_STARTED' ) {
+                        $existing_not_started_transaction_id        = $order_transaction_meta_data[$last_transaction_key]['_transaction_id'];
+                        $existing_not_started_transaction_status    = $order_transaction_meta_data[$last_transaction_key]['_transaction_status'];
+                    } else {
+                        switch( $order_transaction_meta_data[$last_transaction_key]['_transaction_status'] ) {
+                            case 'PROCESSING':
+                                wc_add_notice( __( 'ArkPay: Last transaction still in process. Try again in a few minutes.', 'arkpay-payment' ), 'error' );
+                                return;
+                                break;
+                            case 'COMPLETED':
+                                wc_add_notice( __( 'ArkPay: Transaction already completed.', 'arkpay-payment' ), 'error' );
+                                return;
+                                break;
+                        }
+    
+                        wc_add_notice( __( 'ArkPay: Something went wrong.', 'arkpay-payment' ), 'error' );
+                        return;
+                    }
+                }
+            }
+
+            if ( ! isset( $existing_not_started_transaction_id ) && ! isset( $existing_not_started_transaction_status ) && ! $existing_not_started_transaction_id && ! $existing_not_started_transaction_status ) {
+                $transaction = $this->create_arkpay_transaction( $data );
+    
+                if ( $transaction && isset( $transaction->transaction->id ) ) {
+                    $transaction_id             = $transaction->transaction->id;
+                    $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
+                    $transaction_status         = $transaction->transaction->status;
+    
+                    $meta_data = array(
+                        '_transaction_id'           => sanitize_text_field( $transaction_id ),
+                        '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
+                        '_transaction_status'       => sanitize_text_field( $transaction_status ),
+                    );
+                
+                    $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
+                
+                    if ( ! $existing_meta_data ) {
+                        $existing_meta_data = array();
+                    }
+                
+                    $existing_meta_data[] = $meta_data;
+                
+                    update_post_meta( $order_id, '_transaction_data', $existing_meta_data );
+                }
+    
+                if ( isset( $transaction->statusCode ) && 400 === $transaction->statusCode ) {
+                    $unique_id = uniqid();
+    
+                    if ( preg_match( '/wc_order_[A-Za-z0-9]+/', $transaction->message, $matches ) ) {
+                        $data['id'] = $matches[0] . '__' . $unique_id;
+                    }
+    
+                    $transaction                = $this->create_arkpay_transaction( $data );
+                    $transaction_id             = $transaction->transaction->id;
+                    $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
+                    $transaction_status         = $transaction->transaction->status;
+    
+                    $meta_data = array(
+                        '_transaction_id'           => sanitize_text_field( $transaction_id ),
+                        '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
+                        '_transaction_status'       => sanitize_text_field( $transaction_status ),
+                    );
+                
+                    $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
+                
+                    if ( ! $existing_meta_data ) {
+                        $existing_meta_data = array();
+                    }
+                
+                    $existing_meta_data[] = $meta_data;
+                
+                    update_post_meta( $order_id, '_transaction_data', $existing_meta_data );
+                }
+    
+                if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
+                    wc_add_notice( __( 'ArkPay: ' . $transaction->message . '.', 'arkpay-payment' ), 'error' );
                     return;
                 }
             }
 
-            $transaction = $this->create_arkpay_transaction( $data );
-
-            if ( $transaction && isset( $transaction->transaction->id ) ) {
-                $transaction_id             = $transaction->transaction->id;
-                $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
-                $transaction_status         = $transaction->transaction->status;
-
-                $meta_data = array(
-                    '_transaction_id'           => sanitize_text_field( $transaction_id ),
-                    '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
-                    '_transaction_status'       => sanitize_text_field( $transaction_status ),
-                );
-            
-                $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
-            
-                if ( ! $existing_meta_data ) {
-                    $existing_meta_data = array();
-                }
-            
-                $existing_meta_data[] = $meta_data;
-            
-                update_post_meta( $order_id, '_transaction_data', $existing_meta_data );
-            }
-
-            if ( isset( $transaction->statusCode ) && 400 === $transaction->statusCode ) {
-                $unique_id = uniqid();
-
-                if ( preg_match( '/wc_order_[A-Za-z0-9]+/', $transaction->message, $matches ) ) {
-                    $data['id'] = $matches[0] . '__' . $unique_id;
-                }
-
-                $transaction                = $this->create_arkpay_transaction( $data );
-                $transaction_id             = $transaction->transaction->id;
-                $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
-                $transaction_status         = $transaction->transaction->status;
-
-                $meta_data = array(
-                    '_transaction_id'           => sanitize_text_field( $transaction_id ),
-                    '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
-                    '_transaction_status'       => sanitize_text_field( $transaction_status ),
-                );
-            
-                $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
-            
-                if ( ! $existing_meta_data ) {
-                    $existing_meta_data = array();
-                }
-            
-                $existing_meta_data[] = $meta_data;
-            
-                update_post_meta( $order_id, '_transaction_data', $existing_meta_data );
-            }
-
-            if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
-                wc_add_notice( __( 'ArkPay: ' . $transaction->message . '.', 'arkpay-payment' ), 'error' );
+            if ( isset( $existing_not_started_transaction_id ) && isset( $existing_not_started_transaction_status ) && $existing_not_started_transaction_id && $existing_not_started_transaction_status ) {
+                $transaction_id     = $existing_not_started_transaction_id;
+                $transaction_status = $existing_not_started_transaction_status;
             }
 
             if ( $transaction_id && $transaction_status === 'NOT_STARTED' ) {
                 $order_return_url = $this->get_return_url( $order );
                 $pay_transaction_response = $this->pay_arkpay_transaction( $order_data, $credit_card, $transaction_id, $order_return_url );
-
-                if ( $pay_transaction_response->status === 'FAILED' ) {
+                
+                if ( isset( $pay_transaction_response->status ) && $pay_transaction_response->status === 'FAILED' ) {
                     wc_add_notice( __( 'ArkPay: ' . $pay_transaction_response->message . '.', 'arkpay-payment' ), 'error' );
+                    return;
                 }
-
+                
+                if ( isset( $pay_transaction_response->statusCode ) && 200 !== $pay_transaction_response->statusCode ) {
+                    wc_add_notice( __( 'ArkPay: ' . $pay_transaction_response->message . '.', 'arkpay-payment' ), 'error' );
+                    return;
+                }
+                
                 if ( $pay_transaction_response->status === 'PROCESSING' && $pay_transaction_response->redirectUrl ) {
                     $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), __( 'Processing transaction...', 'arkpay-payment' ) );
                     

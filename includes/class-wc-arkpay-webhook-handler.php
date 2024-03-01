@@ -36,8 +36,8 @@ function handle_arkpay_transaction_status_change_webhook() {
 
         if ( $body->status === 'COMPLETED' || $body->status === 'FAILED' || $body->status === 'PROCESSING' ) {
             if ( strpos( $merchant_transaction_id, '__' ) !== false ) {
-                $parts = explode( '__', $merchant_transaction_id );
-                $merchant_transaction_id = $parts[0];
+                $parts                      = explode( '__', $merchant_transaction_id );
+                $merchant_transaction_id    = $parts[0];
             }
         }
 
@@ -142,7 +142,7 @@ function handle_arkpay_transaction_status_change_webhook() {
  */
 function update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, $transaction_status ) {
     if ( $order_transaction_meta_data ) {
-        $last_transaction_key = count($order_transaction_meta_data) - 1;
+        $last_transaction_key = count( $order_transaction_meta_data ) - 1;
 
         $order_transaction_meta_data[$last_transaction_key]['_transaction_status'] = $transaction_status;
 
