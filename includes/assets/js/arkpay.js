@@ -21,44 +21,119 @@ jQuery( function( $ ) {
         return false;
     }
 
-    // Credit card format
+    // Credit card details format and validation
     function creditCardDetailsFormat() {
-        var cardNumber = document.getElementById('cardnumber');
-        var expirationDate = document.getElementById('expirationdate');
-        var securityCode = document.getElementById('securitycode');
+        var holderName                  = document.getElementById('name');
+        var cardNumber                  = document.getElementById('cardnumber');
+        var expirationDate              = document.getElementById('expirationdate');
+        var securityCode                = document.getElementById('securitycode');
+        var holderNameValidation        = false;
+        var cardNumberValidation        = false;
+        var expirationDateValidation    = false;
+        var securityCodeValidation      = false;
         
-        if ( cardNumber && expirationDate && securityCode ) {
-            var placeOrderButton = $('#place_order');
-            var invalidCardNumberBox = $('#invalid-card-number-message');
+        if ( holderName && cardNumber && expirationDate && securityCode ) {
+            var invalidHolderNameBox        = $('#invalid-holder-name-message');
+            var invalidCardNumberBox        = $('#invalid-card-number-message');
+            var invalidExpirationDateBox    = $('#invalid-expiration-date-message');
+            var invalidCVCBox               = $('#invalid-cvc-message');
 
-            if ( cardNumber.length == 0 || cardNumber.value.replace(/\D/g, '').substring(0, 16).length < 16 ) {
-                placeOrderButton.attr("disabled", true);
+            if ( holderName.value.trim().split(/\s+/).length > 1 ) {
+                holderNameValidation = true;
             }
 
+            if ( cardNumber.value.replace(/\D/g, '').substring(0, 16).length === 16 ) {
+                cardNumberValidation = true;
+            }
+            
+            if ( expirationDate.value.match(/^(0[1-9]|1[0-2])\/[0-9]{2}$/) ) {
+                expirationDateValidation = true;
+            }
+            
+            if ( securityCode.value.length === 3 ) {
+                securityCodeValidation = true;
+            }
+
+            // Holder name validation
+            holderName.addEventListener('input', function () {
+                if ( ! /^[A-Za-z\s]*$/.test(this.value) ) {
+                    this.value = this.value.slice(0, -1);
+                }
+
+                var words = this.value.trim().split(/\s+/);
+
+                if ( words.length > 1 ) {
+                    invalidHolderNameBox.css({'display': 'none'});
+                    holderNameValidation = true;
+                } else {
+                    invalidHolderNameBox.css({'display': 'flex'});
+                    holderNameValidation = false;
+                }
+
+                placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
+            });
+
+            // Card number validation
             cardNumber.addEventListener('input', function () {
                 this.value = this.value.replace(/\D/g, '').substring(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
 
                 var creditCardNumber = this.value.replace(/\D/g, '').substring(0, 16);
                 if ( creditCardNumber.length === 16 ) {
                     if ( validateCardNumber( creditCardNumber ) ) {
-                        placeOrderButton.attr("disabled", false);
-                        invalidCardNumberBox.css({'display': 'none'})
+                        invalidCardNumberBox.css({'display': 'none'});
+                        cardNumberValidation = true;
                     } else {
-                        placeOrderButton.attr("disabled", true);
-                        invalidCardNumberBox.css({'display': 'flex'})
+                        invalidCardNumberBox.css({'display': 'flex'});
+                        cardNumberValidation = false;
                     }
                 } else {
-                    placeOrderButton.attr("disabled", true);
+                    cardNumberValidation = false;
                 }
+
+                placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
             });
             
+            // Expiration date validation
             expirationDate.addEventListener('input', function () {
                 this.value = this.value.replace(/\D/g, '').substring(0, 4).replace(/(\d{2})(\d{0,2})/, '$1/$2');
+
+                if ( this.value.match(/^(0[1-9]|1[0-2])\/[0-9]{2}$/) ) {
+                    expirationDateValidation = true;
+                    invalidExpirationDateBox.css({'display': 'none'});
+                } else {
+                    expirationDateValidation = false;
+                    invalidExpirationDateBox.css({'display': 'flex'});
+                }
+
+                placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
             });
             
+            // CVC number validation
             securityCode.addEventListener('input', function () {
                 this.value = this.value.replace(/\D/g, '').substring(0, 3);
+
+                if ( this.value.length === 3 ) {
+                    securityCodeValidation = true;
+                    invalidCVCBox.css({'display': 'none'});
+                } else {
+                    securityCodeValidation = false;
+                    invalidCVCBox.css({'display': 'flex'});
+                }
+
+                placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
             });
+
+            placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
+        }
+    }
+
+    function placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation) {
+        var placeOrderButton = $('#place_order');
+
+        if ( holderNameValidation && cardNumberValidation && expirationDateValidation && securityCodeValidation ) {
+            placeOrderButton.attr("disabled", false);
+        } else {
+            placeOrderButton.attr("disabled", true);
         }
     }
 

@@ -106,19 +106,22 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                     <div class="field-container">
                         <label for="name">Holder Name</label>
                         <input id="name" name="name" maxlength="30" type="text" placeholder="Holder Name">
+                        <span id="invalid-holder-name-message">Holder name must include at least first and last name</span>
                     </div>
                     <div class="field-container">
                         <label for="cardnumber">Card Number</label>
                         <input id="cardnumber" name="cardnumber" type="text" placeholder="Card Number">
-                        <span id="invalid-card-number-message">Invalid Card Number</span>
+                        <span id="invalid-card-number-message">Invalid card number</span>
                     </div>
                     <div class="field-container">
                         <label for="expirationdate">Expiration (mm/yy)</label>
                         <input id="expirationdate" name="expirationdate" type="text" placeholder="Expiration Date">
+                        <span id="invalid-expiration-date-message">Invalid expiration date</span>
                     </div>
                     <div class="field-container">
                         <label for="securitycode">Security Code</label>
                         <input id="securitycode" name="securitycode" type="text" placeholder="CVC">
+                        <span id="invalid-cvc-message">Invalid CVC</span>
                     </div>
                 </div>
             <?php
