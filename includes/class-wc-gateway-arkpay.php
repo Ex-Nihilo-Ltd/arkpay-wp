@@ -742,7 +742,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             $body['customerAddress']['state'] = $order['billing']['state'];
         }
 
-        $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $secret_key );
+        $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
         $headers = array(
             'Content-Type'  => 'application/json',
             'X-Api-Key'     => $api_key,
