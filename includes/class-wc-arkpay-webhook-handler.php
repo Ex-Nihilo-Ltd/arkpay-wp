@@ -23,13 +23,11 @@ function handle_arkpay_transaction_status_change_webhook() {
         $transaction_id = $body->id;
         $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE transaction_id=%s", $transaction_id ) );
         if ( !empty( $results ) ) {
-            foreach ( $results as $row ) {
-                $draft_transaction_id       = $row->transaction_id;
-                $draft_transaction_status   = $row->transaction_status;
-                $draft_cart_items           = json_decode( $row->cart_items );
-                $draft_order_id             = $row->order_id ? $row->order_id : '';
-                $draft_shipping             = json_decode( $row->shipping );
-            }
+            $draft_transaction_id       = $results[0]->transaction_id;
+            $draft_transaction_status   = $results[0]->transaction_status;
+            $draft_cart_items           = json_decode( $results[0]->cart_items );
+            $draft_order_id             = $results[0]->order_id ? $results[0]->order_id : '';
+            $draft_shipping             = json_decode( $results[0]->shipping );
         }
 
         $merchant_transaction_id = $body->merchantTransactionId;
