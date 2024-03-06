@@ -146,9 +146,11 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             $sql_order = "CREATE TABLE $table_order (
             transaction_id VARCHAR(255) NOT NULL,
             transaction_status VARCHAR(50),
+            transaction_url LONGTEXT,
             cart_items LONGTEXT,
             order_id VARCHAR(255),
             order_key VARCHAR(255),
+            cart_identifier VARCHAR(255),
             shipping LONGTEXT,
             PRIMARY KEY (transaction_id)
             ) $charset_collate;";
@@ -671,6 +673,26 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     }
 
     /**
+     * Retrieves the draft order's transaction URL based on the cart identifier.
+     *
+     * This function queries the database to find a draft order associated with the provided cart identifier
+     * and with a transaction status of 'NOT_STARTED'.
+     *
+     * @param string $cart_identifier   The identifier of the cart to search for.
+     * @return string|null              The transaction URL of the draft order if found, or null if no matching draft order is found.
+     */
+    public function get_draft_order_by_cart_identifier( $cart_identifier ) {
+        global $wpdb;
+
+        $table_name = $wpdb->prefix . 'arkpay_draft_order';
+        $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE cart_identifier=%s AND transaction_status=%s", $cart_identifier, 'NOT_STARTED' ) );
+        if ( ! empty( $results ) ) {
+            $transaction_url = $results[0]->transaction_url;
+            return $transaction_url;
+        }
+    }
+
+    /**
      * Save draft order data to a arkpay_draft_order table in the database.
      *
      * @param array $order_data {
@@ -678,9 +700,12 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      *
      *     @type string $transaction_id     The transaction ID.
      *     @type string $transaction_status The transaction status.
+     *     @type string $transaction_url    The transaction URL.
      *     @type string $cart_items         The serialized cart items.
+     *     @type string $cart_identifier    The cart identifier.
      *     @type int    $order_id           The order ID.
      *     @type string $order_key          The order key.
+     *     @type string $shipping           The serialized shipping data.
      * }
      *
      * @global wpdb $wpdb WordPress database class.
@@ -692,7 +717,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $table_order        = $wpdb->prefix . 'arkpay_draft_order';
         $transaction_id     = $order_data['transaction_id'];
         $transaction_status = $order_data['transaction_status'];
+        $transaction_url    = $order_data['transaction_url'];
         $cart_items         = $order_data['cart_items'];
+        $cart_identifier    = $order_data['cart_identifier'];
         $order_id           = $order_data['order_id'];
         $order_key          = $order_data['order_key'];
         $shipping           = $order_data['shipping'];
@@ -702,7 +729,9 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             array(
                 'transaction_id'        => $transaction_id,
                 'transaction_status'    => $transaction_status,
+                'transaction_url'       => $transaction_url,
                 'cart_items'            => $cart_items,
+                'cart_identifier'       => $cart_identifier,
                 'order_id'              => $order_id,
                 'order_key'             => $order_key,
                 'shipping'              => $shipping,

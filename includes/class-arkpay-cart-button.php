@@ -35,9 +35,14 @@ function add_arkpay_cart_pay_button() {
                         url: '<?php echo esc_attr( admin_url( 'admin-ajax.php' ) ); ?>',
                         data: cartData,
                         success: function (response) {
+                            if ( 200 !== response.data['code'] ) {
+                                location.reload();
+                                return;
+                            }
+
                             $(e.target).addClass('disabled');
                             window.open(
-                                response.data,
+                                response.data['redirect_url'],
                                 '_blank',
                             );
                         },
@@ -82,6 +87,35 @@ function arkpay_save_draft_order() {
             'handlePayment' => false,
         );
 
+        $cart_contents = WC()->cart->get_cart();
+
+        if ( empty( $cart_contents ) ) {
+            wc_add_notice( __( 'ArkPay: Your cart is empty.', 'arkpay-payment' ), 'error' );
+            wp_send_json_error( array(
+                'code' => 400,
+                'message' => 'Cart is empty.'
+            ) );
+            wp_die();
+        }
+
+        $session                    = WC()->session->get_session_cookie();
+        $session_id                 = implode( '', $session );
+        $cart_contents_serialized   = serialize( $cart_contents );
+        $cart_hash                  = WC()->cart->get_cart_hash();
+        $cart_identifier            = md5( $session_id . $cart_hash . $cart_contents_serialized );
+
+        $transaction_url = $arkpay_gateway->get_draft_order_by_cart_identifier( $cart_identifier );
+        if ( ! empty( $transaction_url ) ) {
+            // Clear cart
+            WC()->cart->empty_cart();
+
+            wp_send_json_success( array(
+                'code' => 200,
+                'redirect_url' => $transaction_url
+            ) );
+            wp_die();
+        }
+
         $transaction = $arkpay_gateway->create_arkpay_transaction( $order_data );
 
         if ( $transaction ) {
@@ -96,7 +130,7 @@ function arkpay_save_draft_order() {
 
             $session_instance = WC()->session;
             $shipping_method_id = $session_instance->get('chosen_shipping_methods')[0];
-            
+
             $chosen_shipping_methods = $session_instance->get('shipping_for_package_0')['rates'];
             $shipping_method_cost = 0;
             foreach ( $chosen_shipping_methods as $method_id => $rate ) {
@@ -117,7 +151,9 @@ function arkpay_save_draft_order() {
             $draft_order_data = array(
                 'transaction_id'        => $transaction->transaction->id,
                 'transaction_status'    => $transaction->transaction->status,
+                'transaction_url'       => $transaction->redirectUrl,
                 'cart_items'            => wp_json_encode( $items ),
+                'cart_identifier'       => $cart_identifier,
                 'order_id'              => null,
                 'order_key'             => null,
                 'shipping'              => wp_json_encode( $shipping ),
@@ -130,7 +166,10 @@ function arkpay_save_draft_order() {
             // Clear cart
             WC()->cart->empty_cart();
 
-            wp_send_json_success( $redirect_url );
+            wp_send_json_success( array(
+                'code' => 200,
+                'redirect_url' => $redirect_url
+            ) );
         }
     } catch ( Exception $error ) {
         wp_send_json_error( array( 'error_message' => $error->getMessage() ) );
