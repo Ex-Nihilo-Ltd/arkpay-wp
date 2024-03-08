@@ -152,6 +152,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             order_key VARCHAR(255),
             cart_identifier VARCHAR(255),
             shipping LONGTEXT,
+            applied_coupons LONGTEXT,
             PRIMARY KEY (transaction_id)
             ) $charset_collate;";
 
@@ -723,6 +724,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $order_id           = $order_data['order_id'];
         $order_key          = $order_data['order_key'];
         $shipping           = $order_data['shipping'];
+        $applied_coupons    = $order_data['applied_coupons'];
 
         $wpdb->insert(
             $table_order,
@@ -735,6 +737,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 'order_id'              => $order_id,
                 'order_key'             => $order_key,
                 'shipping'              => $shipping,
+                'applied_coupons'       => $applied_coupons,
             ),
             array( '%s', '%s', '%s' )
         );
