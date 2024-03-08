@@ -88,11 +88,11 @@ jQuery( function( $ ) {
                 if ( cardNumber.value.replace(/\D/g, '').substring(0, 16).length === 16 ) {
                     cardNumberValidation = true;
                 }
-                
+
                 if ( expirationDate.value.match(/^(0[1-9]|1[0-2])\/[0-9]{2}$/) ) {
                     expirationDateValidation = true;
                 }
-                
+
                 if ( securityCode.value.length === 3 ) {
                     securityCodeValidation = true;
                 }
@@ -135,7 +135,7 @@ jQuery( function( $ ) {
 
                     placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
                 });
-                
+
                 // Expiration date validation
                 expirationDate.addEventListener('input', function () {
                     this.value = this.value.replace(/\D/g, '').substring(0, 4).replace(/(\d{2})(\d{0,2})/, '$1/$2');
@@ -150,7 +150,7 @@ jQuery( function( $ ) {
 
                     placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
                 });
-                
+
                 // CVC number validation
                 securityCode.addEventListener('input', function () {
                     this.value = this.value.replace(/\D/g, '').substring(0, 3);
@@ -200,7 +200,7 @@ jQuery( function( $ ) {
                 arkPaySelected = false;
                 var checkedRadio = $('input[name="radio-control-wc-payment-method-options"]:checked');
                 var labelId = checkedRadio.closest('.wc-block-components-radio-control-accordion-option').find('.wc-block-components-radio-control__label').attr('id');
-            
+
                 if ( labelId.indexOf( 'arkpay_payment' ) !== -1 ) {
                     arkPaySelected = true;
                 }

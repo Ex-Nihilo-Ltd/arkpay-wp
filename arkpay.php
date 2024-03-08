@@ -75,7 +75,7 @@ function arkpay_payment_init() {
         if ( $enable_direct === 'no' ) {
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-cart-button.php';
         }
-        
+
         require_once plugin_dir_path( __FILE__ ) . 'includes/class-arkpay-checkout-button.php';
         require_once plugin_dir_path( __FILE__ ) . 'includes/class-wc-arkpay-thankyou-redirect.php';
 
@@ -115,7 +115,7 @@ add_filter( 'woocommerce_payment_gateways', 'add_arkpay_payment_gateway_to_wc' )
  */
 function register_api_webhook_route() {
     require_once 'includes/class-wc-arkpay-webhook-handler.php';
-	
+
     @register_rest_route( 'api/arkpay', '/webhook', array(
         'methods'  => 'POST',
         'callback' => 'handle_arkpay_transaction_status_change_webhook',
@@ -147,7 +147,7 @@ add_action( 'before_woocommerce_init', 'declare_cart_checkout_blocks_compatibili
  */
 function register_arkpay_payment_method() {
     require_once __DIR__ . '/includes/class-wc-gateway-arkpay-blocks-support.php';
-    
+
     add_action(
         'woocommerce_blocks_payment_method_type_registration',
         function( Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry ) {
