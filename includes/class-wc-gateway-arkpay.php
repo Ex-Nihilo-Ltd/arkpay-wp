@@ -720,7 +720,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         $api_url        = $this->get_api_url();
         $api_uri        = '/api/v1/merchant/api/transactions/' . $transaction_id . '/pay';
         $endpoint       = '/merchant/api/transactions/' . $transaction_id . '/pay';
-	
+
         $body = array(
             'cardNumber'        => str_replace( ' ', '', strval( $credit_card['card_number'] ) ),
             'cardExpiryDate'    => strval( $credit_card['expiration_date'] ),
