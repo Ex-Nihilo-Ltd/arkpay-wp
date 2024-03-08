@@ -70,7 +70,10 @@ a#arkpay-pay-button:focus {
   border: 1px solid #dcdcdc;
 }
 
-.arkpay-form-container #invalid-card-number-message {
+.arkpay-form-container #invalid-card-number-message,
+.arkpay-form-container #invalid-expiration-date-message,
+.arkpay-form-container #invalid-cvc-message,
+.arkpay-form-container #invalid-holder-name-message {
   font-size: 11px;
   color: #B00020;
   display: none;

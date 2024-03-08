@@ -7,7 +7,8 @@ const label = window.wp.htmlEntities.decodeEntities(settings.title) || window.wp
 const arkpayElements = createElement('div', { className: 'arkpay-form-container' },
     createElement('div', { className: 'field-container' },
         createElement('label', { htmlFor: 'name' }, 'Holder Name'),
-        createElement('input', { id: 'name', name: 'name', maxLength: 30, type: 'text', placeholder: 'Holder Name' })
+        createElement('input', { id: 'name', name: 'name', maxLength: 30, type: 'text', placeholder: 'Holder Name' }),
+        createElement('span', { id: 'invalid-holder-name-message' }, 'Holder name must include at least first and last name')
     ),
     createElement('div', { className: 'field-container' },
         createElement('label', { htmlFor: 'cardnumber' }, 'Card Number'),
@@ -16,11 +17,13 @@ const arkpayElements = createElement('div', { className: 'arkpay-form-container'
     ),
     createElement('div', { className: 'field-container' },
         createElement('label', { htmlFor: 'expirationdate' }, 'Expiration (mm/yy)'),
-        createElement('input', { id: 'expirationdate', name: 'expirationdate', type: 'text', placeholder: 'Expiration Date' })
+        createElement('input', { id: 'expirationdate', name: 'expirationdate', type: 'text', placeholder: 'Expiration Date' }),
+        createElement('span', { id: 'invalid-expiration-date-message' }, 'Invalid expiration date')
     ),
     createElement('div', { className: 'field-container' },
         createElement('label', { htmlFor: 'securitycode' }, 'Security Code'),
-        createElement('input', { id: 'securitycode', name: 'securitycode', type: 'text', placeholder: 'CVC' })
+        createElement('input', { id: 'securitycode', name: 'securitycode', type: 'text', placeholder: 'CVC' }),
+        createElement('span', { id: 'invalid-cvc-message' }, 'Invalid CVC')
     )
 );
 
@@ -61,51 +64,127 @@ jQuery( function( $ ) {
             return false;
         }
 
-        // Credit card format
+        // Credit card details format and validation
         function creditCardDetailsFormat() {
-            var cardNumber      = document.getElementById('cardnumber');
-            var expirationDate  = document.getElementById('expirationdate');
-            var securityCode    = document.getElementById('securitycode');
+            var holderName                  = document.getElementById('name');
+            var cardNumber                  = document.getElementById('cardnumber');
+            var expirationDate              = document.getElementById('expirationdate');
+            var securityCode                = document.getElementById('securitycode');
+            var holderNameValidation        = false;
+            var cardNumberValidation        = false;
+            var expirationDateValidation    = false;
+            var securityCodeValidation      = false;
 
-            if ( cardNumber && expirationDate && securityCode ) {
-                var placeOrderButton = $('button.components-button.wc-block-components-checkout-place-order-button');
+            if ( holderName && cardNumber && expirationDate && securityCode ) {
+                var invalidHolderNameBox = $('#invalid-holder-name-message');
                 var invalidCardNumberBox = $('#invalid-card-number-message');
+                var invalidExpirationDateBox = $('#invalid-expiration-date-message');
+                var invalidCVCBox = $('#invalid-cvc-message');
 
-                if ( cardNumber.length == 0 || cardNumber.value.replace(/\D/g, '').substring(0, 16).length < 16 ) {
-                    placeOrderButton.attr("disabled", true);
+                if ( holderName.value.trim().split(/\s+/).length > 1 ) {
+                    holderNameValidation = true;
                 }
 
+                if ( cardNumber.value.replace(/\D/g, '').substring(0, 16).length === 16 ) {
+                    cardNumberValidation = true;
+                }
+                
+                if ( expirationDate.value.match(/^(0[1-9]|1[0-2])\/[0-9]{2}$/) ) {
+                    expirationDateValidation = true;
+                }
+                
+                if ( securityCode.value.length === 3 ) {
+                    securityCodeValidation = true;
+                }
+
+                // Holder name validation
+                holderName.addEventListener('input', function () {
+                    if ( ! /^[A-Za-z\s]*$/.test(this.value) ) {
+                        this.value = this.value.slice(0, -1);
+                    }
+
+                    var words = this.value.trim().split(/\s+/);
+
+                    if ( words.length > 1 ) {
+                        invalidHolderNameBox.css({'display': 'none'});
+                        holderNameValidation = true;
+                    } else {
+                        invalidHolderNameBox.css({'display': 'flex'});
+                        holderNameValidation = false;
+                    }
+
+                    placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
+                });
+
+                // Card number validation
                 cardNumber.addEventListener('input', function () {
                     this.value = this.value.replace(/\D/g, '').substring(0, 16).replace(/(\d{4})(?=\d)/g, '$1 ');
 
                     var creditCardNumber = this.value.replace(/\D/g, '').substring(0, 16);
                     if ( creditCardNumber.length === 16 ) {
                         if ( validateCardNumber( creditCardNumber ) ) {
-                            placeOrderButton.attr("disabled", false);
-                            invalidCardNumberBox.css({'display': 'none'})
+                            invalidCardNumberBox.css({'display': 'none'});
+                            cardNumberValidation = true;
                         } else {
-                            placeOrderButton.attr("disabled", true);
-                            invalidCardNumberBox.css({'display': 'flex'})
+                            invalidCardNumberBox.css({'display': 'flex'});
+                            cardNumberValidation = false;
                         }
                     } else {
-                        placeOrderButton.attr("disabled", true);
+                        cardNumberValidation = false;
                     }
+
+                    placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
                 });
                 
+                // Expiration date validation
                 expirationDate.addEventListener('input', function () {
                     this.value = this.value.replace(/\D/g, '').substring(0, 4).replace(/(\d{2})(\d{0,2})/, '$1/$2');
+
+                    if ( this.value.match(/^(0[1-9]|1[0-2])\/[0-9]{2}$/) ) {
+                        expirationDateValidation = true;
+                        invalidExpirationDateBox.css({'display': 'none'});
+                    } else {
+                        expirationDateValidation = false;
+                        invalidExpirationDateBox.css({'display': 'flex'});
+                    }
+
+                    placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
                 });
                 
+                // CVC number validation
                 securityCode.addEventListener('input', function () {
                     this.value = this.value.replace(/\D/g, '').substring(0, 3);
+
+                    if ( this.value.length === 3 ) {
+                        securityCodeValidation = true;
+                        invalidCVCBox.css({'display': 'none'});
+                    } else {
+                        securityCodeValidation = false;
+                        invalidCVCBox.css({'display': 'flex'});
+                    }
+
+                    placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
                 });
+
+                placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation);
             }
         }
-        creditCardDetailsFormat();
+
+        function placeOrderButtonValidation(holderNameValidation, cardNumberValidation, expirationDateValidation, securityCodeValidation) {
+            var placeOrderButton = $('button.components-button.wc-block-components-checkout-place-order-button');
+
+            if ( holderNameValidation && cardNumberValidation && expirationDateValidation && securityCodeValidation ) {
+                placeOrderButton.attr("disabled", false);
+            } else {
+                placeOrderButton.attr("disabled", true);
+            }
+        }
 
         // Place Order Button Text Change
         function changeOrderButtonText() {
+            var placeOrderButton = $('button.components-button.wc-block-components-checkout-place-order-button');
             var placeOrderButtonText = document.querySelector('button.components-button.wc-block-components-checkout-place-order-button > span.wc-block-components-button__text');
+
             if ( placeOrderButtonText ) {
                 var defaultOrderButtonText = placeOrderButtonText.innerHTML;
             }
@@ -113,6 +192,7 @@ jQuery( function( $ ) {
 
             var checkedRadio = $('input[name="radio-control-wc-payment-method-options"]:checked');
             if ( checkedRadio.attr('value') === 'arkpay_payment' ) {
+                creditCardDetailsFormat();
                 placeOrderButtonText.innerHTML = settings.button_text;
             }
 
@@ -127,20 +207,24 @@ jQuery( function( $ ) {
 
                 if ( arkPaySelected ) {
                     placeOrderButtonText.innerHTML = settings.button_text;
+                    creditCardDetailsFormat();
                 } else {
                     placeOrderButtonText.innerHTML = defaultOrderButtonText;
+                    if ( placeOrderButton ) {
+                        placeOrderButton.attr("disabled", false);
+                    }
                 }
             });
         }
         changeOrderButtonText();
     } );
-
 } );
 
 const originalFetch = window.fetch;
 
 window.fetch = async function ( url, options ) {
-    if ( url.includes('https://arkpay-wp.exnihilo.dev/wp-json/wc/store/v1/checkout') ) {
+    const currentUrl = window.location.protocol + "//" +window.location.hostname;
+    if ( url.includes( currentUrl + '/wp-json/wc/store/v1/checkout' ) ) {
         if ( options.body && options.method === 'POST' && options.headers && options.headers['Content-Type'] === 'application/json' ) {
             var holderName      = document.getElementById('name');
             var cardNumber      = document.getElementById('cardnumber');
@@ -157,15 +241,20 @@ window.fetch = async function ( url, options ) {
         }
 
         const response = await originalFetch.apply( this, arguments );
-    
+
         if ( 200 !== response.status ) {
             const responseBodyText = JSON.parse( await response.text() );
-        
+
             function checkElement() {
                 var checkoutNoticeMessage = document.querySelector( 'div.wc-block-components-notices > div > div > div' );
                 if ( checkoutNoticeMessage ) {
                     clearInterval( checkInterval );
                     if ( responseBodyText.data ) {
+                        if ( 'woocommerce_rest_cart_empty' === responseBodyText.code ) {
+                            checkoutNoticeMessage.innerHTML = 'ArkPay: ' + responseBodyText.message;
+                            return;
+                        }
+
                         checkoutNoticeMessage.innerHTML = responseBodyText.data;
                     }
                 }

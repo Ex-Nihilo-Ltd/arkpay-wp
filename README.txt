@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.4
+Stable tag: 1.0.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -82,7 +82,51 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 
 == Changelog ==
 
+= 1.0.3 2024-02-29 =
+
+**ArkPay**
+
+* Fix - Webhook auth failed response.
+
+== Changelog ==
+
 = 1.0.4 2024-02-29 =
+
+**ArkPay**
+
+* Fix - Enhanced response for webhook authentication failure.
+
+= 1.0.5 2024-03-01 =
+
+**ArkPay**
+
+* Fix - use $_SERVER instead of getallheaders()
+
+= 1.0.6 2024-03-01 =
+
+**ArkPay**
+
+* Fix - Webhook $data(body) missing.
+
+= 1.0.7 2024-03-01 =
+
+**ArkPay**
+
+* Fix - Webhook auth failed - signature mismatch message.
+
+= 1.0.8 2024-03-01 =
+
+**ArkPay**
+
+* Fix - Order transaction check if there is already an active transaction before proceeding.
+
+= 1.0.9 2024-03-06 =
+
+**ArkPay**
+
+* Fix - Removed the JSON_UNESCAPED_SLASHES option from the signature creation in the payment request.
+
+= 1.0.10 2024-03-08 =
 
 **ArkPay**
 
