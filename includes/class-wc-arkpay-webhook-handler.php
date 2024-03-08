@@ -29,6 +29,7 @@ function handle_arkpay_transaction_status_change_webhook() {
                 $draft_cart_items           = json_decode( $row->cart_items );
                 $draft_order_id             = $row->order_id ? $row->order_id : '';
                 $draft_shipping             = json_decode( $row->shipping );
+                $draft_applied_coupons      = json_decode( $row->applied_coupons );
             }
         }
 
@@ -70,6 +71,12 @@ function handle_arkpay_transaction_status_change_webhook() {
                     );
 
                     $order->set_address( $address, 'billing' );
+
+                    if ( ! empty( $draft_applied_coupons ) ) {
+                        foreach ( $draft_applied_coupons as $coupon_code => $coupon_value ) {
+                            $order->apply_coupon( $coupon_code );
+                        }
+                    }
 
                     $shipping = new WC_Order_Item_Shipping();
                     $shipping->set_method_id( $draft_shipping->shipping_method_id );

@@ -148,6 +148,8 @@ function arkpay_save_draft_order() {
             $shipping['shipping_method_cost']   = $shipping_method_cost;
             $shipping['shipping_items']         = $shipping_items;
 
+            $applied_coupons = WC()->cart->get_coupon_discount_totals();
+
             $draft_order_data = array(
                 'transaction_id'        => $transaction->transaction->id,
                 'transaction_status'    => $transaction->transaction->status,
@@ -157,6 +159,7 @@ function arkpay_save_draft_order() {
                 'order_id'              => null,
                 'order_key'             => null,
                 'shipping'              => wp_json_encode( $shipping ),
+                'applied_coupons'       => ! empty( $applied_coupons ) ? wp_json_encode( $applied_coupons ) : null,
             );
 
             $arkpay_gateway->save_draft_order( $draft_order_data );
