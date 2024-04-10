@@ -85,7 +85,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         wp_enqueue_script( 'arkpay_js', plugins_url( 'assets/js/arkpay.js', __FILE__ ), array( 'jquery' ), ARKPAY_VERSION, true );
 
         // Create database table
-        $this->create_arkpay_draft_order_table();
+        $this->arkpay_create_draft_order_table();
     }
 
     /**
@@ -98,7 +98,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      */
     public function payment_fields() {
         wp_nonce_field( 'arkpay_payment_nonce', 'arkpay_payment_nonce' );
-        $settings = $this->get_arkpay_settings();
+        $settings = $this->arkpay_get_settings();
 
         if ( $settings['enable_direct'] === 'yes' ) {
             ?>
@@ -134,7 +134,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      *
      * @global wpdb $wpdb WordPress database access abstraction object.
      */
-    private function create_arkpay_draft_order_table() {
+    private function arkpay_create_draft_order_table() {
         global $wpdb;
 
         $table_order = $wpdb->prefix . 'arkpay_draft_order';
@@ -164,8 +164,8 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     protected function setup_properties() {
         $this->id                 = self::ID;
         $this->icon               = apply_filters( 'woocommerce_arkpay_icon', plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ) );
-        $this->method_title       = __( 'Arkpay', 'arkpay-payment' );
-        $this->method_description = __( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay-payment' );
+        $this->method_title       = esc_html__( 'Arkpay', 'arkpay' );
+        $this->method_description = esc_html__( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay' );
         $this->has_fields         = true;
     }
 
@@ -175,57 +175,57 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     public function init_form_fields() {
         $this->form_fields = apply_filters( 'arkpay_payments_fields', array(
             'enabled'       => array(
-                'title'             => __( 'Enable/Disable', 'arkpay-payment' ),
-                'label'             => __( 'Enable Arkpay Payment', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Enable/Disable', 'arkpay' ),
+                'label'             => esc_html__( 'Enable Arkpay Payment', 'arkpay' ),
                 'type'              => 'checkbox',
                 'description'       => '',
                 'default'           => 'no'
             ),
             'title'         => array(
-                'title'             => __( 'Title', 'arkpay-payment' ),
-                'description'       => __( 'This controls the title which the user sees during checkout.', 'arkpay-payment' ),
-                'default'           => __( 'Arkpay Payment', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Title', 'arkpay' ),
+                'description'       => esc_html__( 'This controls the title which the user sees during checkout.', 'arkpay' ),
+                'default'           => esc_html__( 'Arkpay Payment', 'arkpay' ),
                 'type'              => 'text',
                 'desc_tip'          => true,
             ),
             'description'   => array(
-                'title'             => __( 'Description', 'arkpay-payment' ),
-                'description'       => __( 'Arkpay description.', 'arkpay-payment' ),
-                'default'           => __( 'Pay with your credit card via arkpay payment gateway.', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Description', 'arkpay' ),
+                'description'       => esc_html__( 'Arkpay description.', 'arkpay' ),
+                'default'           => esc_html__( 'Pay with your credit card via arkpay payment gateway.', 'arkpay' ),
                 'type'              => 'textarea',
                 'desc_tip'          => true,
             ),
             'testmode'      => array(
-                'title'             => __( 'Test mode', 'arkpay-payment' ),
-                'label'             => __( 'Enable Test Mode', 'arkpay-payment' ),
-                'description'       => __( 'Place the payment gateway in test mode using test API keys.', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Test mode', 'arkpay' ),
+                'label'             => esc_html__( 'Enable Test Mode', 'arkpay' ),
+                'description'       => esc_html__( 'Place the payment gateway in test mode using test API keys.', 'arkpay' ),
                 'type'              => 'checkbox',
                 'default'           => 'no',
                 'desc_tip'          => true,
             ),
             'api_key'       => array(
-                'title'             => __( 'API Key', 'arkpay-payment' ),
+                'title'             => esc_html__( 'API Key', 'arkpay' ),
                 'type'              => 'text',
             ),
             'secret_key'    => array(
-                'title'             => __( 'Secret Key', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Secret Key', 'arkpay' ),
                 'type'              => 'text',
             ),
             'button_text'   => array(
-                'title'             => __( 'Checkout Page - Button', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Checkout Page - Button', 'arkpay' ),
                 'type'              => 'text',
             ),
             'webhook_url'   => array(
-                'title'             => __( 'Webhook URL: ', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Webhook URL: ', 'arkpay' ),
                 'type'              => 'text',
                 'desc_tip'          => 'Copy this webhook URL to your ArkPay store settings.',
-                'default'           => $this->get_webhook_url(),
+                'default'           => $this->arkpay_get_webhook_url(),
                 'custom_attributes' => array( 'readonly' => 'readonly' ),
             ),
             'enable_direct' => array(
-                'title'             => __( 'Payment method', 'arkpay-payment' ),
-                'label'             => __( 'Enable direct API', 'arkpay-payment' ),
-                'description'       => __( 'By checking this box, Arkpay gateway works through Direct API. If unchecked, HPP is being used (a default method).', 'arkpay-payment' ),
+                'title'             => esc_html__( 'Payment method', 'arkpay' ),
+                'label'             => esc_html__( 'Enable direct API', 'arkpay' ),
+                'description'       => esc_html__( 'By checking this box, Arkpay gateway works through Direct API. If unchecked, HPP is being used (a default method).', 'arkpay' ),
                 'type'              => 'checkbox',
                 'default'           => 'no',
                 'desc_tip'          => true,
@@ -241,13 +241,13 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     private function is_accessing_settings() {
         if ( is_admin() ) {
             // phpcs:disable WordPress.Security.NonceVerification
-            if ( ! isset( $_REQUEST['page'] ) || 'wc-settings' !== $_REQUEST['page'] ) {
+            if ( ! isset( $_REQUEST['page'] ) || 'wc-settings' !== esc_html( sanitize_text_field( $_REQUEST['page'] ) ) ) {
                 return false;
             }
-            if ( ! isset( $_REQUEST['tab'] ) || 'checkout' !== $_REQUEST['tab'] ) {
+            if ( ! isset( $_REQUEST['tab'] ) || 'checkout' !== esc_html( sanitize_text_field( $_REQUEST['tab'] ) ) ) {
                 return false;
             }
-            if ( ! isset( $_REQUEST['section'] ) || 'arkpay_payment' !== $_REQUEST['section'] ) {
+            if ( ! isset( $_REQUEST['section'] ) || 'arkpay_payment' !== esc_html( sanitize_text_field( $_REQUEST['section'] ) ) ) {
                 return false;
             }
             // phpcs:enable WordPress.Security.NonceVerification
@@ -291,7 +291,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             $options[ $method->get_method_title() ] = array();
 
             // Translators: %1$s shipping method name.
-            $options[ $method->get_method_title() ][ $method->id ] = sprintf( __( 'Any &quot;%1$s&quot; method', 'arkpay-payment' ), $method->get_method_title() );
+            $options[ $method->get_method_title() ][ $method->id ] = sprintf( esc_html__( 'Any &quot;%1$s&quot; method', 'arkpay' ), $method->get_method_title() );
 
             foreach ( $zones as $zone ) {
 
@@ -306,10 +306,10 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                     $option_id = $shipping_method_instance->get_rate_id();
 
                     // Translators: %1$s shipping method title, %2$s shipping method id.
-                    $option_instance_title = sprintf( __( '%1$s (#%2$s)', 'arkpay-payment' ), $shipping_method_instance->get_title(), $shipping_method_instance_id );
+                    $option_instance_title = sprintf( esc_html__( '%1$s (#%2$s)', 'arkpay' ), $shipping_method_instance->get_title(), $shipping_method_instance_id );
 
                     // Translators: %1$s zone name, %2$s shipping method instance name.
-                    $option_title = sprintf( __( '%1$s &ndash; %2$s', 'arkpay-payment' ), $zone->get_id() ? $zone->get_zone_name() : __( 'Other locations', 'arkpay-payment' ), $option_instance_title );
+                    $option_title = sprintf( esc_html__( '%1$s &ndash; %2$s', 'arkpay' ), $zone->get_id() ? $zone->get_zone_name() : esc_html__( 'Other locations', 'arkpay' ), $option_instance_title );
 
                     $options[ $method->get_method_title() ][ $option_id ] = $option_title;
                 }
@@ -383,8 +383,8 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      * @return array
      */
     public function process_payment( $order_id ) {
-        if ( ! isset( $_POST['arkpay_payment_nonce'] ) || ! wp_verify_nonce( $_POST['arkpay_payment_nonce'], 'arkpay_payment_nonce' ) ) {
-            wc_add_notice( __( 'ArkPay Security check failed.', 'arkpay-payment' ), 'error' );
+        if ( ! isset( $_POST['arkpay_payment_nonce'] ) || ! wp_verify_nonce( esc_html( sanitize_text_field( wp_unslash( $_POST['arkpay_payment_nonce'] ) ) ), 'arkpay_payment_nonce' ) ) {
+            wc_add_notice( esc_html__( 'ArkPay Security check failed.', 'arkpay' ), 'error' );
             return;
         }
 
@@ -393,14 +393,14 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
 
         // Retrieve the credit card details
         $credit_card = array(
-            'holder_name'        => sanitize_text_field( $_POST['name'] ),
-            'card_number'        => sanitize_text_field( $_POST['cardnumber'] ),
-            'expiration_date'    => sanitize_text_field( $_POST['expirationdate'] ),
-            'cvc'                => sanitize_text_field( $_POST['securitycode'] ),
+            'holder_name'        => esc_html( sanitize_text_field( $_POST['name'] ) ),
+            'card_number'        => esc_html( sanitize_text_field( $_POST['cardnumber'] ) ),
+            'expiration_date'    => esc_html( sanitize_text_field( $_POST['expirationdate'] ) ),
+            'cvc'                => esc_html( sanitize_text_field( $_POST['securitycode'] ) ),
         );
-        
+
         if ( $order->get_total() > 0 ) {
-            
+
             $data = array(
                 'id'            => strval( $order_data['order_key'] ),
                 'ammount'       => floatval( $order_data['total'] ),
@@ -421,77 +421,77 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                     } else {
                         switch( $order_transaction_meta_data[$last_transaction_key]['_transaction_status'] ) {
                             case 'PROCESSING':
-                                wc_add_notice( __( 'ArkPay: Last transaction still in process. Try again in a few minutes.', 'arkpay-payment' ), 'error' );
+                                wc_add_notice( esc_html__( 'ArkPay: Last transaction still in process. Try again in a few minutes.', 'arkpay' ), 'error' );
                                 return;
                                 break;
                             case 'COMPLETED':
-                                wc_add_notice( __( 'ArkPay: Transaction already completed.', 'arkpay-payment' ), 'error' );
+                                wc_add_notice( esc_html__( 'ArkPay: Transaction already completed.', 'arkpay' ), 'error' );
                                 return;
                                 break;
                         }
-    
-                        wc_add_notice( __( 'ArkPay: Something went wrong.', 'arkpay-payment' ), 'error' );
+
+                        wc_add_notice( esc_html__( 'ArkPay: Something went wrong.', 'arkpay' ), 'error' );
                         return;
                     }
                 }
             }
 
             if ( ! isset( $existing_not_started_transaction_id ) && ! isset( $existing_not_started_transaction_status ) && ! $existing_not_started_transaction_id && ! $existing_not_started_transaction_status ) {
-                $transaction = $this->create_arkpay_transaction( $data );
-    
+                $transaction = $this->arkpay_create_transaction( $data );
+
                 if ( $transaction && isset( $transaction->transaction->id ) ) {
                     $transaction_id             = $transaction->transaction->id;
                     $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
                     $transaction_status         = $transaction->transaction->status;
-    
+
                     $meta_data = array(
                         '_transaction_id'           => sanitize_text_field( $transaction_id ),
                         '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
                         '_transaction_status'       => sanitize_text_field( $transaction_status ),
                     );
-                
+
                     $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
-                
+
                     if ( ! $existing_meta_data ) {
                         $existing_meta_data = array();
                     }
-                
+
                     $existing_meta_data[] = $meta_data;
-                
+
                     update_post_meta( $order_id, '_transaction_data', $existing_meta_data );
                 }
-    
+
                 if ( isset( $transaction->statusCode ) && 400 === $transaction->statusCode ) {
                     $unique_id = uniqid();
-    
+
                     if ( preg_match( '/wc_order_[A-Za-z0-9]+/', $transaction->message, $matches ) ) {
                         $data['id'] = $matches[0] . '__' . $unique_id;
                     }
-    
-                    $transaction                = $this->create_arkpay_transaction( $data );
+
+                    $transaction                = $this->arkpay_create_transaction( $data );
                     $transaction_id             = $transaction->transaction->id;
                     $merchant_transaction_id    = $transaction->transaction->merchantTransactionId;
                     $transaction_status         = $transaction->transaction->status;
-    
+
                     $meta_data = array(
                         '_transaction_id'           => sanitize_text_field( $transaction_id ),
                         '_merchant_transaction_id'  => sanitize_text_field( $merchant_transaction_id ),
                         '_transaction_status'       => sanitize_text_field( $transaction_status ),
                     );
-                
+
                     $existing_meta_data = get_post_meta( $order_id, '_transaction_data', true );
-                
+
                     if ( ! $existing_meta_data ) {
                         $existing_meta_data = array();
                     }
-                
+
                     $existing_meta_data[] = $meta_data;
-                
+
                     update_post_meta( $order_id, '_transaction_data', $existing_meta_data );
                 }
-    
+
                 if ( isset( $transaction->statusCode ) && 200 !== $transaction->statusCode ) {
-                    wc_add_notice( __( 'ArkPay: ' . $transaction->message . '.', 'arkpay-payment' ), 'error' );
+                    wc_add_notice( sprintf( esc_html__( 'ArkPay: %s.', 'arkpay' ), esc_html( $transaction->message ) ), 'error' );
                     return;
                 }
             }
@@ -502,22 +502,22 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             }
 
             if ( $transaction_id && $transaction_status === 'NOT_STARTED' ) {
-                $order_return_url = $this->get_return_url( $order );
-                $pay_transaction_response = $this->pay_arkpay_transaction( $order_data, $credit_card, $transaction_id, $order_return_url );
-                
+                $order_return_url         = $this->get_return_url( $order );
+                $pay_transaction_response = $this->arkpay_pay_transaction( $order_data, $credit_card, $transaction_id, $order_return_url );
+
                 if ( isset( $pay_transaction_response->status ) && $pay_transaction_response->status === 'FAILED' ) {
-                    wc_add_notice( __( 'ArkPay: ' . $pay_transaction_response->message . '.', 'arkpay-payment' ), 'error' );
+                    wc_add_notice( sprintf( esc_html__( 'ArkPay: %s.', 'arkpay' ), esc_html( $pay_transaction_response->message ) ), 'error' );
                     return;
                 }
-                
+
                 if ( isset( $pay_transaction_response->statusCode ) && 200 !== $pay_transaction_response->statusCode ) {
-                    wc_add_notice( __( 'ArkPay: ' . $pay_transaction_response->message . '.', 'arkpay-payment' ), 'error' );
+                    wc_add_notice( sprintf( esc_html__( 'ArkPay: %s.', 'arkpay' ), esc_html( $pay_transaction_response->message ) ), 'error' );
                     return;
                 }
-                
+
                 if ( $pay_transaction_response->status === 'PROCESSING' && $pay_transaction_response->redirectUrl ) {
-                    $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), __( 'Processing transaction...', 'arkpay-payment' ) );
-                    
+                    $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), esc_html__( 'Processing transaction...', 'arkpay' ) );
+
                     WC()->cart->empty_cart();
 
                     // Return redirect ACS Bank page
@@ -529,8 +529,6 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             }
         }
     }
-
-    private function arkpay_payment_processing( $order ) {}
 
     /**
      * Output for the order received page.
@@ -575,7 +573,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      *
      * @return array An array containing the settings related to ArkPay.
      */
-    public function get_arkpay_settings() {
+    public function arkpay_get_settings() {
         return array(
             'title'         => $this->title,
             'description'   => $this->description,
@@ -585,7 +583,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             'secret_key'    => $this->secret_key,
             'button_text'   => $this->button_text,
             'enable_direct' => $this->enable_direct,
-            'webhook_url'   => $this->get_webhook_url(),
+            'webhook_url'   => $this->arkpay_get_webhook_url(),
         );
     }
 
@@ -599,7 +597,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      *
      * @return string The generated HMAC-SHA256 signature.
      */
-    public function create_signature( $http_method, $api_uri, $body, $secret_key ) {
+    public function arkpay_create_signature( $http_method, $api_uri, $body, $secret_key ) {
         $payload = $http_method . ' ' . $api_uri . "\n" . $body;
         return hash_hmac( 'sha256', $payload, $secret_key );
     }
@@ -607,15 +605,15 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
     /**
      * Get webhook URL.
      */
-    public function get_webhook_url() {
+    public function arkpay_get_webhook_url() {
         return get_rest_url() . 'api/arkpay/webhook';
     }
 
     /**
      * Get API URL.
      */
-    public function get_api_url() {
-        $settings = $this->get_arkpay_settings();
+    public function arkpay_get_api_url() {
+        $settings = $this->arkpay_get_settings();
 
         if ( $settings['testmode'] === 'yes' ) {
             return 'https://api-arkpay.exnihilo.dev/api/v1';
@@ -631,13 +629,13 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      *
      * @return mixed The response from the ArkPay API.
      */
-    public function create_arkpay_transaction( $order ) {
-        $settings = $this->get_arkpay_settings();
+    public function arkpay_create_transaction( $order ) {
+        $settings = $this->arkpay_get_settings();
 
         $http_method    = 'POST';
         $api_key        = $settings['api_key'];
         $secret_key     = $settings['secret_key'];
-        $api_url        = $this->get_api_url();
+        $api_url        = $this->arkpay_get_api_url();
         $api_uri        = '/api/v1/merchant/api/transactions';
         $endpoint       = '/merchant/api/transactions';
 
@@ -649,7 +647,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             'handlePayment'         => $order['handlePayment'],
         );
 
-        $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
+        $signature = $this->arkpay_create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
         $headers = array(
             'Content-Type'  => 'application/json',
             'X-Api-Key'     => $api_key,
@@ -663,7 +661,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         ) );
 
         if ( is_wp_error( $response ) ) {
-            wc_add_notice( __( 'ArkPay: ' . $response->get_error_message() . '.', 'arkpay-payment' ), 'error' );
+            wc_add_notice( sprintf( esc_html__( 'ArkPay: %s.', 'arkpay' ), esc_html( $response->get_error_message() ) ), 'error' );
             return false;
         }
 
@@ -685,7 +683,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      *
      * @global wpdb $wpdb WordPress database class.
      */
-    public function save_draft_order( $order_data ) {
+    public function arkpay_create_draft_order( $order_data ) {
         global $wpdb;
 
         // Create draft order in the order table
@@ -711,16 +709,16 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         );
     }
 
-    public function pay_arkpay_transaction( $order, $credit_card, $transaction_id, $order_return_url ) {
-        $settings = $this->get_arkpay_settings();
+    public function arkpay_pay_transaction( $order, $credit_card, $transaction_id, $order_return_url ) {
+        $settings = $this->arkpay_get_settings();
 
         $http_method    = 'POST';
         $api_key        = $settings['api_key'];
         $secret_key     = $settings['secret_key'];
-        $api_url        = $this->get_api_url();
+        $api_url        = $this->arkpay_get_api_url();
         $api_uri        = '/api/v1/merchant/api/transactions/' . $transaction_id . '/pay';
         $endpoint       = '/merchant/api/transactions/' . $transaction_id . '/pay';
-	
+
         $body = array(
             'cardNumber'        => str_replace( ' ', '', strval( $credit_card['card_number'] ) ),
             'cardExpiryDate'    => strval( $credit_card['expiration_date'] ),
@@ -742,7 +740,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
             $body['customerAddress']['state'] = $order['billing']['state'];
         }
 
-        $signature = $this->create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
+        $signature = $this->arkpay_create_signature( $http_method, $api_uri, wp_json_encode( $body ), $secret_key );
         $headers = array(
             'Content-Type'  => 'application/json',
             'X-Api-Key'     => $api_key,
@@ -756,7 +754,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
         ) );
 
         if ( is_wp_error( $response ) ) {
-            wc_add_notice( __( 'ArkPay: ' . $response->get_error_message() . '.', 'arkpay-payment' ), 'error' );
+            wc_add_notice( sprintf( esc_html__( 'ArkPay: %s.', 'arkpay' ), esc_html( $response->get_error_message() ) ), 'error' );
             return false;
         }
 

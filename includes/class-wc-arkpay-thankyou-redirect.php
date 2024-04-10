@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
+
 /**
  * Callback function to handle the redirection after a successful transaction.
  *
@@ -8,12 +12,12 @@
  * relevant information from the database and redirects the user to the thank you page
  * of the corresponding WooCommerce order.
  */
-function thankyou_redirect_page() {
+function arkpay_thankyou_redirect_page() {
     if ( isset( $_GET['arkpayTransactionId'] ) && isset( $_GET['success'] ) && $_GET['success'] === 'true' ) {
         global $wpdb;
 
         $table_name = $wpdb->prefix . 'arkpay_draft_order';
-        $transaction_id = sanitize_text_field( $_GET['arkpayTransactionId'] );
+        $transaction_id = esc_html( sanitize_text_field( $_GET['arkpayTransactionId'] ) );
         $results = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table_name WHERE transaction_id=%s", $transaction_id ) );
         if ( !empty( $results ) ) {
             $order_transaction_id   = $results[0]->transaction_id;
@@ -30,4 +34,4 @@ function thankyou_redirect_page() {
     }
 }
 
-add_action( 'init', 'thankyou_redirect_page' );
+add_action( 'init', 'arkpay_thankyou_redirect_page' );

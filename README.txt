@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,38 @@ The Smartest, Fastest & Most Secure Payment Processor.
 
 == Description ==
 
-ArkPay is a Swiss payment service provider which is affiliated with SOFIT,  a self regulatory organization  which itself is directly supervised by FINMA. We utilize this license to offer payment services to merchants of all categories. ArkPay offers a full suite gateway too merchants, which means unlike many other payment services providers you are not billed separately for gateway fees.
+ArkPay is a Swiss payment service provider which is affiliated with SOFIT, a self regulatory organization which itself is directly supervised by FINMA. We utilize this license to offer payment services to merchants of all categories. ArkPay offers a full suite gateway too merchants, which means unlike many other payment services providers you are not billed separately for gateway fees.
 
 [ArkPay](https://arkpay.com/)
+
+== Usage of 3rd Party Service ==
+
+ArkPay plugin utilizes ArkPay service in the following circumstances:
+
+Cart page
+
+- Users can pay for their orders directly from the cart by clicking the "Pay via ArkPay" button. At that moment, a request is sent to the ArkPay service to create a transaction, redirecting users to a new Hosted Payment Page (HPP) to complete the payment for their order.
+
+Checkout page
+
+- Users can also pay for their orders on the checkout page. It's necessary for users to enter valid credit card information and select the ArkPay service as their payment method. By clicking the "Pay/Place Order" button, the plugin sends a request to the ArkPay service to create a transaction and another request to immediately process the payment using the entered credit card information.
+
+Requests
+
+- [Create transaction](https://arkpay.com/api/v1/merchant/api/transactions)
+- [Pay transaction](https://arkpay.com/api/v1/merchant/api/transactions/[transaction_id]/pay)
+
+For more information about ArkPay, please visit our website: https://arkpay.com.
+
+== Legal Information ==
+
+It's important to understand the terms of service and privacy policies associated with ArkPay. Please review the following documents:
+
+- [Terms of Service](https://arkpay.com/terms-of-service)
+- [Privacy Policy](https://arkpay.com/privacy-policy)
+- [Licenses](https://arkpay.com/licences)
+
+By using this plugin, you acknowledge and agree to abide by the terms and policies of ArkPay.
 
 == Frequently Asked Questions ==
 
@@ -125,3 +154,9 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Fix - Removed the JSON_UNESCAPED_SLASHES option from the signature creation in the payment request.
+
+= 1.0.10 2024-04-10 =
+
+**ArkPay**
+
+* Update - Code/Functions update.
