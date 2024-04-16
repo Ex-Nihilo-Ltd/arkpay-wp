@@ -1,20 +1,24 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly.
+}
+
 /**
  * ArkPay handle transaction status change webhook.
  */
-function handle_arkpay_transaction_status_change_webhook() {
+function arkpay_handle_transaction_status_change_webhook() {
     global $wpdb;
     $payment_gateway = new WC_Gateway_Arkpay();
 
     $data               = file_get_contents('php://input');
-    $request_signature  = esc_sql( $_SERVER['HTTP_SIGNATURE'] );
-    $settings           = $payment_gateway->get_arkpay_settings();
+    $request_signature  = esc_sql( esc_html( sanitize_text_field( $_SERVER['HTTP_SIGNATURE'] ) ) );
+    $settings           = $payment_gateway->arkpay_get_settings();
     $secret_key         = $settings['secret_key'];
     $webhook_url        = $settings['webhook_url'];
     $http_method        = 'POST';
 
-    $signature = $payment_gateway->create_signature( $http_method, $webhook_url, $data, $secret_key );
+    $signature = $payment_gateway->arkpay_create_signature( $http_method, $webhook_url, $data, $secret_key );
 
     if ( isset( $request_signature ) && $signature === $request_signature ) {
         $body = json_decode( $data );
@@ -78,23 +82,23 @@ function handle_arkpay_transaction_status_change_webhook() {
                     $shipping->save();
                     $order->add_item( $shipping );
 
-                    $order->set_payment_method('Credit card (ArkPay)');
+                    $order->set_payment_method( 'Credit card (ArkPay)' );
                     $order->calculate_totals();
                     $order->save();
 
                     update_transaction_status( $table_name, $transaction_id, $body->status, $order->get_id(), $order->get_order_key() );
                 } else {
-                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'PROCESSING' );
+                    arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'PROCESSING' );
                 }
                 break;
             case 'COMPLETED':
                 if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'PROCESSING' ) {
                     update_transaction_status( $table_name, $transaction_id, $body->status );
                     $order_completed = wc_get_order( $draft_order_id );
-                    $order_completed->update_status( 'processing', __( 'Transaction has been completed.', 'arkpay-payment' ) );
+                    $order_completed->update_status( 'processing', esc_html__( 'Transaction has been completed.', 'arkpay' ) );
                 } else {
-                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'COMPLETED' );
-                    $order_exist->update_status( 'processing', __( 'Transaction has been completed.', 'arkpay-payment' ) );
+                    arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'COMPLETED' );
+                    $order_exist->update_status( 'processing', esc_html__( 'Transaction has been completed.', 'arkpay' ) );
                 }
                 break;
             case 'FAILED':
@@ -102,19 +106,19 @@ function handle_arkpay_transaction_status_change_webhook() {
                     update_transaction_status( $table_name, $transaction_id, $body->status );
                     if ( $draft_transaction_status === 'PROCESSING' ) {
                         $order_failed = wc_get_order( $draft_order_id );
-                        $order_failed->update_status( 'failed', __( 'Transaction has been failed.', 'arkpay-payment' ) );
+                        $order_failed->update_status( 'failed', esc_html__( 'Transaction has been failed.', 'arkpay' ) );
                     }
                 } else {
-                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'FAILED' );
-                    $order_exist->update_status( 'failed', __( 'Transaction has been failed.', 'arkpay-payment' ) );
+                    arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'FAILED' );
+                    $order_exist->update_status( 'failed', esc_html__( 'Transaction has been failed.', 'arkpay' ) );
                 }
                 break;
             case 'CANCELLED':
                 if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'NOT_STARTED' ) {
                     update_transaction_status( $table_name, $transaction_id, $body->status );
                 } else {
-                    update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'CANCELLED' );
-                    $order_exist->update_status( 'CANCELLED', __( 'Transaction has been cancelled.', 'arkpay-payment' ) );
+                    arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'CANCELLED' );
+                    $order_exist->update_status( 'CANCELLED', esc_html__( 'Transaction has been cancelled.', 'arkpay' ) );
                 }
                 break;
         }
@@ -124,7 +128,7 @@ function handle_arkpay_transaction_status_change_webhook() {
             'code'              => 401,
             'message'           => 'Signature mismatch.',
         );
-        echo json_encode( $response );
+        echo wp_json_encode( $response );
         exit();
     }
 }
@@ -140,7 +144,7 @@ function handle_arkpay_transaction_status_change_webhook() {
  * 
  * @return void
  */
-function update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, $transaction_status ) {
+function arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, $transaction_status ) {
     if ( $order_transaction_meta_data ) {
         $last_transaction_key = count( $order_transaction_meta_data ) - 1;
 

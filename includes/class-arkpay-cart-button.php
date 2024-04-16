@@ -4,8 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
-add_action( 'woocommerce_widget_shopping_cart_buttons', 'add_arkpay_cart_pay_button' );
-add_action( 'woocommerce_proceed_to_checkout', 'add_arkpay_cart_pay_button' );
+add_action( 'woocommerce_widget_shopping_cart_buttons', 'arkpay_add_cart_pay_button' );
+add_action( 'woocommerce_proceed_to_checkout', 'arkpay_add_cart_pay_button' );
 /**
  * Adds a custom button to the cart page for ArkPay payment.
  *
@@ -13,13 +13,13 @@ add_action( 'woocommerce_proceed_to_checkout', 'add_arkpay_cart_pay_button' );
  *
  * @throws Exception Throws an exception if there are issues retrieving payment gateway details or processing the AJAX request.
  */
-function add_arkpay_cart_pay_button() {
+function arkpay_add_cart_pay_button() {
     $arkpay_gateway = new WC_Gateway_Arkpay();
-    $settings = $arkpay_gateway->get_arkpay_settings();
+    $settings = $arkpay_gateway->arkpay_get_settings();
     $button_text = $settings['button_text'] ? $settings['button_text'] : 'Pay via Arkpay';
 
     ?>
-        <a href="#" class="checkout-button button alt wc-forward wp-element-button" id="arkpay-pay-button"><?php echo esc_html__( (string) $button_text , 'arkpay-payment' ); ?></a>
+        <a href="#" class="checkout-button button alt wc-forward wp-element-button" id="arkpay-pay-button"><?= sprintf( esc_html__( '%s', 'arkpay' ), esc_html( $button_text ) ); ?></a>
         <script>
             jQuery(function ($) {
                 $('#arkpay-pay-button').on('click', function (e) {
@@ -82,7 +82,7 @@ function arkpay_save_draft_order() {
             'handlePayment' => false,
         );
 
-        $transaction = $arkpay_gateway->create_arkpay_transaction( $order_data );
+        $transaction = $arkpay_gateway->arkpay_create_transaction( $order_data );
 
         if ( $transaction ) {
             // Add products to the draft order
@@ -96,7 +96,7 @@ function arkpay_save_draft_order() {
 
             $session_instance = WC()->session;
             $shipping_method_id = $session_instance->get('chosen_shipping_methods')[0];
-            
+
             $chosen_shipping_methods = $session_instance->get('shipping_for_package_0')['rates'];
             $shipping_method_cost = 0;
             foreach ( $chosen_shipping_methods as $method_id => $rate ) {
@@ -123,7 +123,7 @@ function arkpay_save_draft_order() {
                 'shipping'              => wp_json_encode( $shipping ),
             );
 
-            $arkpay_gateway->save_draft_order( $draft_order_data );
+            $arkpay_gateway->arkpay_create_draft_order( $draft_order_data );
 
             $redirect_url = $transaction->redirectUrl;
 
