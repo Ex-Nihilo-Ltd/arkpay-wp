@@ -163,7 +163,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
      */
     protected function setup_properties() {
         $this->id                 = self::ID;
-        $this->icon               = apply_filters( 'woocommerce_arkpay_icon', plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ) );
+        $this->icon               = apply_filters( 'arkpay_woocommerce_icon', plugins_url( 'assets/images/arkpay-logo.svg', __FILE__ ) );
         $this->method_title       = esc_html__( 'Arkpay', 'arkpay' );
         $this->method_description = esc_html__( 'The Smartest, Fastest & Most Secure Payment Processor.' , 'arkpay' );
         $this->has_fields         = true;
@@ -516,7 +516,7 @@ class WC_Gateway_Arkpay extends WC_Payment_Gateway {
                 }
 
                 if ( $pay_transaction_response->status === 'PROCESSING' && $pay_transaction_response->redirectUrl ) {
-                    $order->update_status( apply_filters( 'woocommerce_arkpay_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), esc_html__( 'Processing transaction...', 'arkpay' ) );
+                    $order->update_status( apply_filters( 'arkpay_woocommerce_process_payment_order_status', $order->has_downloadable_item() ? 'on-hold' : 'pending', $order ), esc_html__( 'Processing transaction...', 'arkpay' ) );
 
                     WC()->cart->empty_cart();
 

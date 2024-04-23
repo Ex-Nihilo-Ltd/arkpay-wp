@@ -19,7 +19,7 @@ function arkpay_add_cart_pay_button() {
     $button_text = $settings['button_text'] ? $settings['button_text'] : 'Pay via Arkpay';
 
     ?>
-        <a href="#" class="checkout-button button alt wc-forward wp-element-button" id="arkpay-pay-button"><?= sprintf( esc_html__( '%s', 'arkpay' ), esc_html( $button_text ) ); ?></a>
+        <a href="#" class="checkout-button button alt wc-forward wp-element-button" id="arkpay-pay-button"><?php echo sprintf( esc_html__( '%s', 'arkpay' ), esc_html( $button_text ) ); ?></a>
         <script>
             jQuery(function ($) {
                 $('#arkpay-pay-button').on('click', function (e) {
