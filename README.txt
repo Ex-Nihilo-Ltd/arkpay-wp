@@ -165,4 +165,5 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 
 **ArkPay**
 
-* Update - Code/Functions update.
+* Update - Removing PHP short tags, not allowed to use.
+* Update - Updating function/class/define/namespace/option names with plugins prefix to make them more unique and avoid conflicts with other plugins or themes.
