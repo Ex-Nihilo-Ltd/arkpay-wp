@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -160,3 +160,10 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 **ArkPay**
 
 * Update - Code/Functions update.
+
+= 1.0.11 2024-04-23 =
+
+**ArkPay**
+
+* Update - Removing PHP short tags, as its not recommended by WordPress standard.
+* Update - Updating function/class/define/namespace/option names with plugins prefix to make them more unique and avoid conflicts with other plugins or themes.

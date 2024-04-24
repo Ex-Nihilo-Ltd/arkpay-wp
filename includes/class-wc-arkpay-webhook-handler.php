@@ -86,14 +86,14 @@ function arkpay_handle_transaction_status_change_webhook() {
                     $order->calculate_totals();
                     $order->save();
 
-                    update_transaction_status( $table_name, $transaction_id, $body->status, $order->get_id(), $order->get_order_key() );
+                    arkpay_update_transaction_status( $table_name, $transaction_id, $body->status, $order->get_id(), $order->get_order_key() );
                 } else {
                     arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'PROCESSING' );
                 }
                 break;
             case 'COMPLETED':
                 if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'PROCESSING' ) {
-                    update_transaction_status( $table_name, $transaction_id, $body->status );
+                    arkpay_update_transaction_status( $table_name, $transaction_id, $body->status );
                     $order_completed = wc_get_order( $draft_order_id );
                     $order_completed->update_status( 'processing', esc_html__( 'Transaction has been completed.', 'arkpay' ) );
                 } else {
@@ -103,7 +103,7 @@ function arkpay_handle_transaction_status_change_webhook() {
                 break;
             case 'FAILED':
                 if ( $draft_transaction_id === $transaction_id && in_array( $draft_transaction_status, [ 'PROCESSING', 'NOT_STARTED', 'FAILED' ] ) ) {
-                    update_transaction_status( $table_name, $transaction_id, $body->status );
+                    arkpay_update_transaction_status( $table_name, $transaction_id, $body->status );
                     if ( $draft_transaction_status === 'PROCESSING' ) {
                         $order_failed = wc_get_order( $draft_order_id );
                         $order_failed->update_status( 'failed', esc_html__( 'Transaction has been failed.', 'arkpay' ) );
@@ -115,7 +115,7 @@ function arkpay_handle_transaction_status_change_webhook() {
                 break;
             case 'CANCELLED':
                 if ( ! $order_exist && $draft_transaction_id === $transaction_id && $draft_transaction_status === 'NOT_STARTED' ) {
-                    update_transaction_status( $table_name, $transaction_id, $body->status );
+                    arkpay_update_transaction_status( $table_name, $transaction_id, $body->status );
                 } else {
                     arkpay_update_order_transaction_status_meta_data( $order_id, $order_transaction_meta_data, 'CANCELLED' );
                     $order_exist->update_status( 'CANCELLED', esc_html__( 'Transaction has been cancelled.', 'arkpay' ) );
@@ -167,7 +167,7 @@ function arkpay_update_order_transaction_status_meta_data( $order_id, $order_tra
  *
  * @global wpdb $wpdb              WordPress database access abstraction object.
  */
-function update_transaction_status( $table_name, $transaction_id, $transaction_status, $order_id = null, $order_key = null ) {
+function arkpay_update_transaction_status( $table_name, $transaction_id, $transaction_status, $order_id = null, $order_key = null ) {
     global $wpdb;
 
     $data = array(
