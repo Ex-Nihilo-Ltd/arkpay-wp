@@ -4,7 +4,7 @@ Donate link: https://exn.rs
 Tags: comments, spam
 Requires at least: 5.2
 Tested up to: 6.5
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,12 @@ Automatic updates should work smoothly, but we still recommend you back up your 
 * Fix - Removed the JSON_UNESCAPED_SLASHES option from the signature creation in the payment request.
 
 = 1.0.10 2024-04-10 =
+
+**ArkPay**
+
+* Update - Code/Functions update.
+
+= 1.0.11 2024-04-23 =
 
 **ArkPay**
 
